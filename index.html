@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Інформатика — матеріали до уроків</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Rubik:wght@400;500;600&display=swap">
+<style>
+/* Layout: a class shelf — header, search, then one section per grade with material cards. Same airmail/ink palette as the lessons. */
+:root{
+  --bg:#e8edf4; --surface:#ffffff; --surface-2:#f3f6fa; --ink:#18202e; --muted:#586377; --line:#d2d9e4;
+  --blue:#2360c4; --red:#cf3a2c; --green:#17854a; --orange:#d9700c; --purple:#7446d4; --focus:#2360c4;
+  --f-display:"Unbounded","Rubik","Segoe UI",Arial,sans-serif; --f-body:"Rubik","Segoe UI",Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10141c; --surface:#1a202b; --surface-2:#232b38; --ink:#e8ecf3; --muted:#9ca5b6; --line:#313a4b;
+  --blue:#7ba4f0; --red:#f07568; --green:#5ccb8d; --orange:#f3a052; --purple:#ad8ff2; --focus:#7ba4f0; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10141c; --surface:#1a202b; --surface-2:#232b38; --ink:#e8ecf3; --muted:#9ca5b6; --line:#313a4b;
+  --blue:#7ba4f0; --red:#f07568; --green:#5ccb8d; --orange:#f3a052; --purple:#ad8ff2; --focus:#7ba4f0; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.5}
+a{color:inherit}
+h1,h2,h3{font-family:var(--f-display);margin:0;line-height:1.15}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 48px}
+.shell{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.air{height:12px;background:repeating-linear-gradient(-45deg,var(--red) 0 16px,var(--surface) 16px 24px,var(--blue) 24px 40px,var(--surface) 40px 48px)}
+.head{padding:26px 28px 8px;display:flex;flex-wrap:wrap;gap:14px 24px;align-items:flex-end;justify-content:space-between}
+.head h1{font-size:44px;font-weight:800}
+.label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.sub{color:var(--muted);margin:6px 0 0}
+.tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.search{font:inherit;font-size:16px;padding:9px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface-2);color:var(--ink);width:260px;max-width:100%}
+.theme{font:inherit;font-size:15px;font-weight:600;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;cursor:pointer}
+.theme:hover{border-color:var(--blue)}
+.search:focus,.theme:focus,.card:focus{outline:3px solid var(--focus);outline-offset:2px}
+main{padding:10px 28px 28px}
+.grade{margin-top:22px}
+.grade h2{font-size:22px;display:flex;align-items:baseline;gap:10px;margin-bottom:12px}
+.grade h2 span{font-family:var(--f-body);font-size:14px;color:var(--muted);font-weight:500}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media (max-width:900px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.head h1{font-size:34px}}
+@media (max-width:560px){.cards{grid-template-columns:minmax(0,1fr)}.head,main{padding-left:16px;padding-right:16px}.head h1{font-size:28px}}
+.card{display:flex;flex-direction:column;gap:8px;text-decoration:none;background:var(--surface-2);border:2px solid var(--line);border-top:6px solid var(--c,var(--blue));border-radius:12px;padding:16px;min-height:170px;transition:transform .15s,border-color .15s}
+.card:hover{transform:translateY(-3px);border-color:var(--c,var(--blue))}
+.meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tag{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;border-radius:999px;padding:2px 10px;background:var(--surface);color:var(--c,var(--blue));border:1.5px solid var(--c,var(--blue))}
+.topic{font-size:13px;color:var(--muted)}
+.card h3{font-size:18px}
+.card p{margin:0;font-size:15px;color:var(--muted)}
+.open{margin-top:auto;font-weight:600;font-size:15px;color:var(--c,var(--blue))}
+.empty{color:var(--muted);padding:20px 0}
+footer{padding:0 28px 22px;font-size:13px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.card{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="shell">
+    <div class="air"></div>
+    <header class="head">
+      <div>
+        <div class="label">Інформатика</div>
+        <h1>Матеріали до уроків</h1>
+        <p class="sub">Інтерактивні довідники, міні-ігри та практичні роботи. Обери свій клас.</p>
+      </div>
+      <div class="tools">
+        <label for="q" class="label" style="position:absolute;left:-9999px">Пошук</label>
+        <input id="q" class="search" type="search" placeholder="Пошук за назвою чи темою" autocomplete="off">
+        <button id="theme" class="theme" type="button">Темна тема</button>
+      </div>
+    </header>
+    <main id="list"></main>
+  </div>
+</div>
+<script src="pages.js"></script>
+<script>
+(function(){
+  var TYPES={
+    reference:   {label:"Довідник",          color:"var(--blue)"},
+    practice:    {label:"Практична робота",  color:"var(--green)"},
+    game:        {label:"Гра",               color:"var(--orange)"},
+    test:        {label:"Тест",              color:"var(--purple)"},
+    presentation:{label:"Презентація",       color:"var(--red)"}
+  };
+  var list=document.getElementById("list"),q=document.getElementById("q");
+  var pages=window.PAGES||[];
+  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  function gradeNum(g){var m=String(g).match(/\d+/);return m?+m[0]:999;}
+  function render(){
+    var term=q.value.trim().toLowerCase();
+    var found=pages.filter(function(p){return !term||(p.title+" "+p.topic+" "+p.desc+" "+p.type+" "+((TYPES[p.type]||{}).label||"")+" "+p.grade).toLowerCase().indexOf(term)>=0;});
+    if(!found.length){list.innerHTML='<p class="empty">Нічого не знайдено.</p>';return;}
+    var groups={},order=[];
+    found.forEach(function(p){if(!groups[p.grade]){groups[p.grade]=[];order.push(p.grade);}groups[p.grade].push(p);});
+    order.sort(function(a,b){return gradeNum(a)-gradeNum(b);});
+    list.innerHTML=order.map(function(g){
+      var items=groups[g];
+      return '<section class="grade"><h2>'+esc(g)+' <span>'+items.length+' '+(items.length===1?"матеріал":(items.length<5?"матеріали":"матеріалів"))+'</span></h2><div class="cards">'+
+        items.map(function(p){var t=TYPES[p.type]||{label:p.type,color:"var(--blue)"};var c=t.color;
+          return '<a class="card" style="--c:'+c+'" href="'+esc(p.file)+'"><div class="meta"><span class="tag">'+esc(t.label)+'</span><span class="topic">'+esc(p.topic)+'</span></div><h3>'+esc(p.title)+'</h3><p>'+esc(p.desc)+'</p><span class="open">Відкрити</span></a>';
+        }).join("")+'</div></section>';
+    }).join("");
+  }
+  q.addEventListener("input",render);
+  /* theme */
+  var root=document.documentElement,btn=document.getElementById("theme");
+  function cur(){var t=root.getAttribute("data-theme");if(t==="dark"||t==="light")return t;return (window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";}
+  function paint(){btn.textContent=cur()==="dark"?"Світла тема":"Темна тема";}
+  try{var s=localStorage.getItem("interactive-school-theme");if(s==="dark"||s==="light")root.setAttribute("data-theme",s);}catch(e){}
+  btn.onclick=function(){var n=cur()==="dark"?"light":"dark";root.setAttribute("data-theme",n);try{localStorage.setItem("interactive-school-theme",n);}catch(e){}paint();};
+  paint();render();
+})();
+</script>
+</body>
+</html>

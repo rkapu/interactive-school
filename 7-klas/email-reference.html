@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<title>Інтерактивний довідник «Електронна пошта»</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Rubik:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+
+:root{
+  --bg:#e8edf4; --surface:#ffffff; --surface-2:#f3f6fa; --ink:#18202e; --muted:#586377; --line:#d2d9e4;
+  --blue:#2360c4; --teal:#0e8a84; --orange:#d9700c; --purple:#7446d4; --amber:#b58900; --red:#cf3a2c; --pink:#c43d82; --green:#17854a;
+  --ok:#17854a; --ok-bg:#e1f4e8; --bad:#b8322a; --bad-bg:#fbe6e3; --focus:#2360c4; --scrim:rgba(16,22,34,.55);
+  --f-display:"Unbounded","Rubik",system-ui,sans-serif; --f-body:"Rubik",system-ui,-apple-system,"Segoe UI",sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10141c; --surface:#1a202b; --surface-2:#232b38; --ink:#e8ecf3; --muted:#9ca5b6; --line:#313a4b;
+  --blue:#7ba4f0; --teal:#4cc7bf; --orange:#f3a052; --purple:#ad8ff2; --amber:#e8c14a; --red:#f07568; --pink:#ee82b8; --green:#5ccb8d;
+  --ok:#5ccb8d; --ok-bg:#16301f; --bad:#f07568; --bad-bg:#3a1d1a; --focus:#7ba4f0; --scrim:rgba(0,0,0,.65); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10141c; --surface:#1a202b; --surface-2:#232b38; --ink:#e8ecf3; --muted:#9ca5b6; --line:#313a4b;
+  --blue:#7ba4f0; --teal:#4cc7bf; --orange:#f3a052; --purple:#ad8ff2; --amber:#e8c14a; --red:#f07568; --pink:#ee82b8; --green:#5ccb8d;
+  --ok:#5ccb8d; --ok-bg:#16301f; --bad:#f07568; --bad-bg:#3a1d1a; --focus:#7ba4f0; --scrim:rgba(0,0,0,.65); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.5}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,.tile:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+h1,h2,h3{font-family:var(--f-display);margin:0;line-height:1.15;text-wrap:balance}
+.mono{font-family:var(--f-mono)}
+.label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.wrap{max-width:1320px;margin:0 auto;padding-inline:16px;padding-block:20px 40px}
+
+.poster{background:var(--surface);border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+.air{height:12px;background:repeating-linear-gradient(-45deg,var(--red) 0 16px,var(--surface) 16px 24px,var(--blue) 24px 40px,var(--surface) 40px 48px)}
+.head{padding:26px 28px 10px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px}
+.head h1{font-size:clamp(30px,4.6vw,58px);font-weight:800;letter-spacing:-.01em}
+.head h1 .at{color:var(--red)}
+.sub{font-size:clamp(16px,1.8vw,22px);color:var(--blue);font-weight:600;margin-top:6px}
+.tip{display:flex;align-items:center;gap:10px;background:var(--surface-2);border-radius:999px;padding:8px 16px;font-size:15px;color:var(--muted)}
+.tip b{color:var(--ink)}
+.tools{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.theme{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-weight:600;font-size:15px}
+.theme:hover{border-color:var(--blue)}
+.theme svg{width:20px;height:20px}
+.pulse{width:10px;height:10px;border-radius:50%;background:var(--red);animation:pulse 1.6s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(207,58,44,.55)}100%{box-shadow:0 0 0 12px rgba(207,58,44,0)}}
+
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;padding:18px 28px 28px}
+@media (max-width:1100px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){.grid{grid-template-columns:minmax(0,1fr);padding:16px}.head{padding:20px 16px 6px}}
+.tile{--c:var(--blue);text-align:left;background:var(--surface);border:2px solid var(--c);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:10px;min-height:250px;position:relative;transition:transform .15s,box-shadow .15s}
+.tile:hover{transform:translateY(-3px);box-shadow:0 10px 24px -12px rgba(0,0,0,.35)}
+.tile .top{display:flex;align-items:center;gap:12px}
+.num{width:40px;height:40px;border-radius:50%;background:var(--c);color:var(--surface);display:grid;place-items:center;font-family:var(--f-display);font-size:18px;flex:none}
+.tile h2{font-size:19px;color:var(--c)}
+.tile ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:3px;font-size:15.5px}
+.tile .more{margin-top:auto;font-weight:600;color:var(--c);font-size:15px;display:flex;align-items:center;gap:6px}
+.tile .more .ar{transition:transform .15s}
+.tile:hover .more .ar{transform:translateX(4px) rotate(45deg)}
+.ico{width:40px;height:40px;color:var(--c);opacity:.85;flex:none;margin-left:auto}
+.tile h2{min-width:0;flex:1}
+.ar{display:inline-block;width:.5em;height:.5em;border-top:2.5px solid currentColor;border-right:2.5px solid currentColor;transform:rotate(45deg);margin:0 .4em .08em .25em;vertical-align:middle}
+.ar.l{transform:rotate(-135deg);margin:0 .25em .08em .4em}
+.ic{display:inline-block;width:1.05em;height:1.05em;vertical-align:-.15em;flex:none}
+.tint{position:relative;z-index:0}
+.tint::before{content:"";position:absolute;top:0;right:0;bottom:0;left:0;background:var(--c);opacity:.1;border-radius:inherit;z-index:-1;pointer-events:none}
+.addr .lg{color:var(--blue)} .addr .sym{color:var(--red);font-weight:700} .addr .dm{color:var(--green)}
+
+/* overlay panel */
+.scrim{position:fixed;top:0;right:0;bottom:0;left:0;background:var(--scrim);display:grid;place-items:center;padding:16px;z-index:10}
+.panel{--c:var(--blue);background:var(--surface);border-radius:16px;width:min(1040px,100%);max-height:calc(100% - 8px);display:flex;flex-direction:column;overflow:hidden;border-top:8px solid var(--c)}
+.p-head{display:flex;align-items:center;gap:14px;padding:18px 22px;border-bottom:1px solid var(--line)}
+.p-head h2{font-size:clamp(20px,2.4vw,28px);color:var(--c);flex:1;min-width:0}
+.x{border:0;background:var(--surface-2);border-radius:10px;width:44px;height:44px;flex:none;display:grid;place-items:center}
+.x svg{width:22px;height:22px}
+.p-body{padding:22px;overflow:auto;display:flex;flex-direction:column;gap:18px}
+.p-foot{display:flex;justify-content:space-between;gap:10px;padding:12px 22px;border-top:1px solid var(--line);background:var(--surface-2)}
+.nav{border:1.5px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 14px;font-weight:600;font-size:15px}
+.nav:hover{border-color:var(--c)}
+.lead{font-size:18px;margin:0;max-width:70ch}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+@media (max-width:760px){.cols{grid-template-columns:minmax(0,1fr)}}
+.box{background:var(--surface-2);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.box h3{font-size:16px}
+.note{font-size:15px;color:var(--muted);margin:0}
+.btn{border:1.5px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 14px;font-weight:600;font-size:15px}
+.btn:hover{background:var(--surface-2);border-color:var(--c)}
+.btn.on{background:var(--c);color:var(--surface);border-color:var(--c)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:14px}
+
+/* mail window mock */
+.mail{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.mail .bar{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;background:var(--surface-2);border-bottom:1px solid var(--line);font-size:14px;font-weight:600}
+.mrow{display:grid;grid-template-columns:84px minmax(0,1fr);gap:10px;padding:9px 14px;border-bottom:1px solid var(--line);align-items:baseline;min-height:42px;transition:background .2s}
+.mrow .k{color:var(--muted);font-size:14px}
+.mrow .v{overflow-wrap:anywhere;min-width:0}
+.mbody{padding:14px;white-space:pre-wrap;min-height:110px;overflow-wrap:anywhere;transition:background .2s}
+.hl{background:var(--surface-2)!important;box-shadow:inset 5px 0 0 var(--c)}
+.ph{color:var(--muted);font-style:italic}
+
+/* address */
+.bigaddr{font-family:var(--f-mono);font-size:clamp(26px,5vw,48px);display:flex;flex-wrap:wrap;gap:4px 6px;justify-content:center;padding:10px 0}
+.seg{display:flex;flex-direction:column;align-items:center;gap:6px}
+.seg span:first-child{padding:4px 10px;border-radius:8px}
+.seg small{font-family:var(--f-body);font-size:14px;color:var(--muted)}
+.s1 span:first-child{background:var(--surface-2);border:2px solid var(--blue);color:var(--blue)}
+.s2 span:first-child{background:var(--surface-2);border:2px solid var(--red);color:var(--red);font-weight:700}
+.s3 span:first-child{background:var(--surface-2);border:2px solid var(--green);color:var(--green)}
+.inp{font:inherit;font-family:var(--f-mono);font-size:20px;padding:10px 14px;border-radius:10px;border:2px solid var(--line);background:var(--surface);color:var(--ink);width:100%}
+.verdict{border-radius:10px;padding:12px 14px;font-weight:500}
+.verdict.good{background:var(--ok-bg);color:var(--ok)} .verdict.bad{background:var(--bad-bg);color:var(--bad)} .verdict.idle{background:var(--surface);color:var(--muted)}
+
+/* folders */
+.box-mail{display:grid;grid-template-columns:190px minmax(0,1fr);min-height:260px}
+@media (max-width:600px){.box-mail{grid-template-columns:minmax(0,1fr)}}
+.fside{display:flex;flex-direction:column;gap:4px;padding:10px;background:var(--surface-2);border-right:1px solid var(--line)}
+.fbtn{display:flex;justify-content:space-between;border:0;background:transparent;border-radius:8px;padding:9px 12px;text-align:left;font-weight:500}
+.fbtn:hover{background:var(--surface)}
+.fbtn.on{background:var(--c);color:var(--surface)}
+.fbtn span:last-child{font-variant-numeric:tabular-nums;opacity:.8}
+.flist{padding:12px 14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.letter{display:grid;grid-template-columns:minmax(0,170px) minmax(0,1fr);gap:10px;padding:10px 12px;border-radius:8px;background:var(--surface-2);font-size:15px}
+.letter b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:600px){.letter{grid-template-columns:minmax(0,1fr)}}
+
+/* steps */
+.steps{display:flex;flex-wrap:wrap;gap:8px}
+.stepbox{background:var(--surface);border-radius:10px;padding:12px 14px;font-size:16px;min-height:72px}
+
+/* etiquette */
+.ann{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--c);color:var(--surface);font-size:13px;font-weight:700;margin-right:6px;vertical-align:1px;flex:none}
+.legend{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.legend li{display:flex;gap:8px;align-items:flex-start;font-size:15.5px}
+.badmail .mbody{color:var(--bad)}
+
+/* phishing */
+.flag{border:0;background:transparent;padding:1px 3px;border-radius:5px;text-align:left;border-bottom:2px dashed var(--red)}
+.flag:hover{background:var(--bad-bg)}
+.flag.found{background:var(--bad-bg);color:var(--bad);border-bottom-color:var(--bad);font-weight:600}
+.counter{font-family:var(--f-display);font-size:18px;font-variant-numeric:tabular-nums}
+.found-list{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:15.5px}
+.rules{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px}
+
+/* flip cards */
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:760px){.cards{grid-template-columns:minmax(0,1fr)}}
+.card{border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:16px;min-height:130px;text-align:left;display:flex;flex-direction:column;gap:8px}
+.card.open{background:var(--surface-2);border-color:var(--c)}
+.card .q{font-weight:600}
+.card .a{color:var(--ok);font-weight:500}
+.card .hint{margin-top:auto;font-size:13px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.pulse{animation:none}.tile,.tile .more .ar{transition:none}}
+</style>
+
+<div class="wrap">
+  <main class="poster">
+    <div class="air"></div>
+    <header class="head">
+      <div>
+        <div class="label">Інформатика · 7 клас · §1.3–1.4</div>
+        <h1>Електронна пошта <span class="at">@</span></h1>
+        <div class="sub">Пиши, надсилай, будь у безпеці!</div>
+      </div>
+      <div class="tools"><a class="theme" href="../index.html" style="text-decoration:none;color:inherit">На головну</a><div class="tip"><span class="pulse" aria-hidden="true"></span><span><b>Натисни на картку</b>, щоб побачити приклад</span></div><button class="theme" id="theme" type="button"></button></div>
+    </header>
+    <section class="grid" id="grid"></section>
+  </main>
+</div>
+<div id="overlay"></div>
+
+<script>
+(function(){
+const ICONS={
+ at:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/></svg>',
+ folder:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
+ send:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>',
+ book:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M7 18a5 5 0 0 1 10 0"/></svg>',
+ smile:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-4-7.5"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01M15 9h.01"/></svg>',
+ shield:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>',
+ star:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m12 2 3 6.5 7 1-5 5 1.2 7L12 18l-6.2 3.5L7 14.5l-5-5 7-1z"/></svg>',
+ quiz:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></svg>'
+};
+const ICHK='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>';
+const ICRS='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+const ICLIP='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11l-9 9a5 5 0 0 1-7-7l9-9a3.5 3.5 0 0 1 5 5l-9 9a2 2 0 0 1-3-3l8-8"/></svg>';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function addr(t){const p=t.split("@");if(p.length<2)return esc(t);return `<span class="lg">${esc(p[0])}</span>`+p.slice(1).map(x=>`<span class="sym">@</span><span class="dm">${esc(x)}</span>`).join("");}
+
+/* ---------- topics ---------- */
+const T=[
+ {id:"adresa",c:"--blue",icon:"at",title:"Адреса e-mail",
+  bullets:['<span class="mono addr"><span class="lg">pupil</span><span class="sym">@</span><span class="dm">ukr.net</span></span>',"логін + @ + адреса сервісу","Для скриньки потрібен обліковий запис: логін і пароль"],
+  more:"Розібрати й перевірити адресу", render:renderAdresa},
+ {id:"papky",c:"--teal",icon:"folder",title:"Папки скриньки",
+  bullets:["Вхідні — отримані","Надіслані — відправлені","Чернетки — недописані","Спам і Кошик"],
+  more:"Відкрити скриньку", render:renderPapky},
+ {id:"nadislaty",c:"--orange",icon:"send",title:"Як надіслати лист",
+  bullets:["Написати<i class=\"ar\"></i>Кому<i class=\"ar\"></i>Тема<i class=\"ar\"></i><br>текст<i class=\"ar\"></i>файли<i class=\"ar\"></i>Надіслати","Re: — відповідь, Fw: — пересилання"],
+  more:"Написати лист крок за кроком", render:renderNadislaty},
+ {id:"knyha",c:"--purple",icon:"book",title:"Адресна книга",
+  bullets:["Контакти зберігають адреси","Група контактів = список розсилання","Один лист — одразу всім"],
+  more:"Надіслати лист групі", render:renderKnyha},
+ {id:"etyket",c:"--amber",icon:"smile",title:"Етикет листування",
+  bullets:["Привітайся й підпишись","Завжди вказуй тему","Не пиши ВЕЛИКИМИ літерами","Смайли :-) — доречно"],
+  more:"Порівняти поганий і добрий лист", render:renderEtyket},
+ {id:"bezpeka",c:"--red",icon:"shield",title:"Безпека",
+  bullets:["Спам і шахрайські «виграші»","Фішинг — крадіжка особистих даних","Нікому не кажи пароль"],
+  more:"Знайти ознаки фішингу", render:renderBezpeka},
+ {id:"fakt",c:"--pink",icon:"star",title:"Цікавий факт",
+  bullets:["1971 рік","Рей Томлінсон і перший e-mail","Звідки взявся символ @"],
+  more:"Прочитати історію", render:renderFakt},
+ {id:"test",c:"--green",icon:"quiz",title:"Перевір себе",
+  bullets:["6 запитань за темою","Подумай — потім переверни картку"],
+  more:"Відкрити картки", render:renderTest}
+];
+
+/* ---------- tile grid ---------- */
+const grid=document.getElementById("grid");
+grid.innerHTML=T.map((t,i)=>`<button class="tile tint" data-i="${i}" style="--c:var(${t.c})" aria-haspopup="dialog">
+  <span class="top"><span class="num">${i+1}</span><h2>${t.title}</h2><span class="ico" aria-hidden="true">${ICONS[t.icon]}</span></span>
+  <ul>${t.bullets.map(b=>`<li>${b}</li>`).join("")}</ul>
+  <span class="more">${t.more}<i class="ar"></i></span></button>`).join("");
+grid.addEventListener("click",e=>{const b=e.target.closest(".tile");if(b)open(+b.dataset.i);});
+
+/* ---------- overlay ---------- */
+const ov=document.getElementById("overlay");let cur=-1,lastFocus=null;
+function open(i){
+  if(cur<0)lastFocus=document.activeElement;
+  cur=(i+T.length)%T.length;const t=T[cur];
+  ov.innerHTML=`<div class="scrim" id="scrim"><div class="panel" role="dialog" aria-modal="true" aria-labelledby="pt" style="--c:var(${t.c})">
+    <div class="p-head"><span class="num">${cur+1}</span><h2 id="pt">${t.title}</h2><button class="x" id="x" aria-label="Закрити"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <div class="p-body" id="pb"></div>
+    <div class="p-foot"><button class="nav" id="prev"><i class="ar l"></i>${T[(cur-1+T.length)%T.length].title}</button><button class="nav" id="next">${T[(cur+1)%T.length].title}<i class="ar"></i></button></div>
+  </div></div>`;
+  t.render(document.getElementById("pb"));
+  document.getElementById("x").onclick=close;
+  document.getElementById("prev").onclick=()=>open(cur-1);
+  document.getElementById("next").onclick=()=>open(cur+1);
+  document.getElementById("scrim").addEventListener("click",e=>{if(e.target.id==="scrim")close();});
+  document.getElementById("x").focus();
+}
+function close(){ov.innerHTML="";cur=-1;if(lastFocus)lastFocus.focus();}
+document.addEventListener("keydown",e=>{
+  if(cur<0)return;
+  if(e.key==="Escape")close();
+  else if(e.target.tagName!=="INPUT"&&e.key==="ArrowRight")open(cur+1);
+  else if(e.target.tagName!=="INPUT"&&e.key==="ArrowLeft")open(cur-1);
+});
+
+/* ---------- 1. address ---------- */
+function checkAddr(s){
+  s=s.trim();
+  if(!s)return{k:"idle",m:"Введи адресу або вибери приклад нижче."};
+  if(/\s/.test(s))return{k:"bad",m:"В адресі є пробіл. В адресах електронної пошти пробілів не буває."};
+  const n=(s.match(/@/g)||[]).length;
+  if(n===0)return{k:"bad",m:"Немає символу @. Без нього не зрозуміло, де закінчується логін і починається адреса сервісу."};
+  if(n>1)return{k:"bad",m:"Символ @ має бути лише один."};
+  const [lg,dm]=s.split("@");
+  if(!lg)return{k:"bad",m:"Перед @ немає логіна."};
+  if(!dm)return{k:"bad",m:"Після @ немає адреси поштового сервісу."};
+  if(!dm.includes(".")||dm.endsWith(".")||dm.startsWith("."))return{k:"bad",m:"Адреса сервісу неповна: потрібна крапка й закінчення, наприклад ukr.net або gmail.com."};
+  if(/[а-яіїєґё]/i.test(s))return{k:"bad",m:"Адресу пишуть латинськими літерами."};
+  const typos={"gmial.com":"gmail.com","gmai.com":"gmail.com","gmail.con":"gmail.com","gmal.com":"gmail.com","ukr.nte":"ukr.net","urk.net":"ukr.net","ukr.ner":"ukr.net"};
+  if(typos[dm.toLowerCase()])return{k:"bad",m:`Формат правильний, але в назві сервісу помилка: «${dm}». Мабуть, мали на увазі ${typos[dm.toLowerCase()]}. Лист не дійде!`};
+  return{k:"good",m:`Правильна адреса: логін «${lg}», символ @, поштовий сервіс «${dm}».`,lg,dm};
+}
+function renderAdresa(el){
+  el.innerHTML=`<p class="lead">Кожна поштова скринька має унікальну адресу. Вона складається з трьох частин.</p>
+  <div class="bigaddr" aria-label="pupil@ukr.net"><div class="seg s1"><span>pupil</span><small>логін</small></div><div class="seg s2"><span>@</span><small>«равлик», «собачка»</small></div><div class="seg s3"><span>ukr.net</span><small>адреса сервісу</small></div></div>
+  <div class="cols">
+   <div class="box"><h3>Перевір адресу</h3>
+    <label class="note" for="ai">Введи адресу — я перевірю, чи вона правильна:</label>
+    <input class="inp" id="ai" autocomplete="off" spellcheck="false" placeholder="наприклад, olena@ukr.net">
+    <div class="verdict idle" id="av" role="status">Введи адресу або вибери приклад нижче.</div>
+    <div class="chips" id="ach">${["olena@ukr.net","olena.ukr.net","olena@@ukr.net","olena ivanova@ukr.net","didus.ivan@gmial.com","sofia@gmail"].map(a=>`<button class="chip mono">${esc(a)}</button>`).join("")}</div>
+   </div>
+   <div class="box"><h3>Запам'ятай</h3>
+    <ul class="rules"><li>Щоб мати скриньку, треба зареєструватися — створити <b>обліковий запис</b> (акаунт).</li><li><b>Логін</b> — умовне ім'я, яке ти придумуєш сам.</li><li><b>Пароль</b> захищає скриньку. Нікому його не кажи!</li><li>Приклади поштових сервісів: FREEMAIL (ukr.net), I.UA, Meta, Gmail, Outlook.</li></ul>
+   </div>
+  </div>`;
+  const ai=el.querySelector("#ai"),av=el.querySelector("#av");
+  const run=()=>{const r=checkAddr(ai.value);av.className="verdict "+r.k;av.innerHTML=r.k==="good"?`${ICHK} ${esc(r.m)}<div class="mono addr" style="margin-top:6px;font-size:20px">${addr(ai.value.trim())}</div>`:(r.k==="bad"?ICRS+" ":"")+esc(r.m);};
+  ai.addEventListener("input",run);
+  el.querySelector("#ach").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;ai.value=b.textContent;run();});
+}
+
+/* ---------- 2. folders ---------- */
+const FOLD={
+ "Вхідні":{d:"листи, які ти отримав. Непрочитані виділені жирним.",l:[["Олена Петрівна","Домашнє завдання на п'ятницю"],["Марко Ткачук","Проєкт про Карпати"],["Ірина Василівна","Екскурсія до Львова"]]},
+ "Надіслані":{d:"копії листів, які ти відправив. Тут можна перевірити, чи лист справді пішов.",l:[["Кому: Марко","Re: Проєкт про Карпати (з фото)"],["Кому: Олена Петрівна","Домашнє завдання 1.3.2"]]},
+ "Чернетки":{d:"незавершені листи. Їх можна дописати й надіслати пізніше.",l:[["Кому: бабуся","Вітання з днем народження (не дописано)"]]},
+ "Спам":{d:"небажані листи: реклама та підозрілі розсилки. Іноді сюди випадково потрапляє і потрібний лист.",l:[["SUPER SALE","ЗНИЖКИ 90%!!! ТІЛЬКИ СЬОГОДНІ"],["Prize Center","Ви виграли iPhone! Підтвердіть дані"]]},
+ "Кошик":{d:"видалені листи. Їх ще можна відновити, але з часом вони зникають назавжди.",l:[["Гурток робототехніки","Старий розклад занять"]]}
+};
+function renderPapky(el){
+  el.innerHTML=`<p class="lead">Натисни на папку ліворуч і подивись, які листи в ній лежать.</p>
+  <div class="mail"><div class="bar"><span>Моя скринька · pupil@ukr.net</span><span class="label">5 папок</span></div>
+   <div class="box-mail"><div class="fside" id="fs">${Object.keys(FOLD).map(f=>`<button class="fbtn" data-f="${f}"><span>${f}</span><span>${FOLD[f].l.length}</span></button>`).join("")}</div>
+   <div class="flist" id="fl"></div></div></div>
+  <p class="note">Папки створюються автоматично, щойно ти реєструєш скриньку.</p>`;
+  const fs=el.querySelector("#fs"),fl=el.querySelector("#fl");
+  const show=f=>{fs.querySelectorAll(".fbtn").forEach(b=>b.classList.toggle("on",b.dataset.f===f));
+    fl.innerHTML=`<div class="note"><b style="color:var(--ink)">${f}</b> — ${FOLD[f].d}</div>`+FOLD[f].l.map((x,i)=>`<div class="letter"><b style="${f==="Вхідні"&&i===0?"":"font-weight:500"}">${esc(x[0])}</b><span>${esc(x[1])}</span></div>`).join("");};
+  fs.addEventListener("click",e=>{const b=e.target.closest(".fbtn");if(b)show(b.dataset.f);});
+  show("Вхідні");
+}
+
+/* ---------- 3. compose ---------- */
+const STEPS=[
+ {f:null,t:"Натисни кнопку «Написати». Відкриється вікно нового листа."},
+ {f:"to",v:'<span class="mono addr">'+addr("olena.informatyka@ukr.net")+'</span>',t:"У поле «Кому» введи адресу отримувача. Можна ввести кілька адрес або вибрати з контактів."},
+ {f:"subject",v:"Домашнє завдання 1.3",t:"У поле «Тема» коротко напиши, про що лист. Саме тему людина бачить у списку листів."},
+ {f:"body",v:"Доброго дня, Олено Петрівно!\nНадсилаю домашнє завдання.\nДякую!\nСофія",t:"Напиши текст: привітання, суть листа, подяка й підпис."},
+ {f:"attach",v:'<span class="chip">'+ICLIP+' завдання 1.3.docx</span>',t:"Кнопка «Вкласти файли» додає до листа фото чи документи. Файли понад 25 МБ Gmail надсилає посиланням з Google Диска, а файли з розширенням .exe блокує."},
+ {f:"send",t:"Натисни «Надіслати». Лист полетить до адресата, а його копія з'явиться в папці «Надіслані»."}
+];
+function renderNadislaty(el){
+  el.innerHTML=`<div class="cols">
+   <div class="mail" id="cw"><div class="bar"><span>Новий лист</span><span class="label">від: pupil@ukr.net</span></div>
+    <div class="mrow" data-f="to"><span class="k">Кому</span><span class="v"><span class="ph">—</span></span></div>
+    <div class="mrow" data-f="subject"><span class="k">Тема</span><span class="v"><span class="ph">—</span></span></div>
+    <div class="mbody" data-f="body"><span class="ph">текст листа</span></div>
+    <div class="mrow" data-f="attach"><span class="k">Файли</span><span class="v"><span class="ph">—</span></span></div>
+    <div class="mrow" data-f="send" style="border-bottom:0"><span class="k"></span><span class="v"><span class="chip" style="font-weight:600">Надіслати</span></span></div>
+   </div>
+   <div class="box"><h3 id="sn">Крок 1 з ${STEPS.length}</h3><div class="stepbox tint" id="st"></div>
+    <div class="steps"><button class="btn" id="sb"><i class="ar l"></i>Назад</button><button class="btn on" id="sf">Далі<i class="ar"></i></button></div>
+   </div></div>
+  <div class="cols">
+   <div class="box"><h3>Відповісти</h3><p class="note">Адреса й тема підставляються самі, до теми додається <b>Re:</b> (reply — відповідь).</p><div class="chip">Re: Проєкт про Карпати</div><p class="note">Лист надіслали кільком людям? Кнопка «Відповісти всім» надішле відповідь кожному.</p></div>
+   <div class="box"><h3>Переслати</h3><p class="note">Лист іде іншій людині разом із текстом і вкладеними файлами. До теми додається <b>Fw:</b> (forward — далі).</p><div class="chip">Fw: Екскурсія до Львова</div></div>
+  </div>`;
+  let s=0;const cw=el.querySelector("#cw");
+  const draw=()=>{
+    cw.querySelectorAll("[data-f]").forEach(r=>r.classList.remove("hl"));
+    STEPS.forEach((st,i)=>{if(!st.f||!st.v)return;const r=cw.querySelector(`[data-f="${st.f}"]`);const tgt=st.f==="body"?r:r.querySelector(".v");
+      tgt.innerHTML=i<=s?(st.f==="body"?esc(st.v):st.v):(st.f==="body"?'<span class="ph">текст листа</span>':'<span class="ph">—</span>');});
+    if(STEPS[s].f)cw.querySelector(`[data-f="${STEPS[s].f}"]`).classList.add("hl");
+    el.querySelector("#sn").textContent=`Крок ${s+1} з ${STEPS.length}`;el.querySelector("#st").textContent=STEPS[s].t;
+    el.querySelector("#sb").disabled=s===0;el.querySelector("#sf").innerHTML=s===STEPS.length-1?"Спочатку":"Далі<i class=\"ar\"></i>";
+  };
+  el.querySelector("#sf").onclick=()=>{s=s===STEPS.length-1?0:s+1;draw();};
+  el.querySelector("#sb").onclick=()=>{if(s>0){s--;draw();}};
+  draw();
+}
+
+/* ---------- 4. address book ---------- */
+const CONTACTS=[["Олена Петрівна","olena.informatyka@ukr.net","Вчителі"],["Марко Ткачук","marko.tkachuk@gmail.com","7-А клас"],["Софія Бондар","sofia.bondar@ukr.net","7-А клас"],["Максим Лисенко","max.lysenko@i.ua","7-А клас"],["Мама","oksana.mama@gmail.com","Родина"],["Дідусь Іван","didus.ivan@gmail.com","Родина"]];
+function renderKnyha(el){
+  const groups=["7-А клас","Родина","Вчителі"];
+  el.innerHTML=`<p class="lead">Адресна книга (Контакти) зберігає імена та адреси людей, з якими ти листуєшся. Контакти можна об'єднати в <b>групи</b>, які називають <b>списками розсилання</b>.</p>
+  <div class="cols">
+   <div class="box"><h3>Мої контакти</h3><div id="cl" style="display:flex;flex-direction:column;gap:6px">${CONTACTS.map(c=>`<div class="letter"><b>${esc(c[0])}</b><span class="mono addr" style="font-size:14px">${addr(c[1])}</span></div>`).join("")}</div></div>
+   <div class="box"><h3>Надішли лист групі</h3><p class="note">Вибери групу — і всі її адреси одразу з'являться в полі «Кому».</p>
+    <div class="chips" id="gb">${groups.map(g=>`<button class="btn" data-g="${g}">${g}</button>`).join("")}</div>
+    <div class="mail"><div class="bar"><span>Новий лист</span></div><div class="mrow" style="border-bottom:0"><span class="k">Кому</span><span class="v" id="to"><span class="ph">вибери групу</span></span></div></div>
+    <p class="note" id="gn"></p>
+   </div></div>
+  <div class="box"><h3>Як додати контакт</h3><ul class="rules"><li>Навести вказівник на ім'я відправника в листі й вибрати <b>Додати до контактів</b>.</li><li>Або відкрити <b>Контакти<i class="ar"></i>Створити контакт</b>, увести дані й натиснути <b>Зберегти</b>.</li></ul></div>`;
+  el.querySelector("#gb").addEventListener("click",e=>{const b=e.target.closest("[data-g]");if(!b)return;const g=b.dataset.g;
+    el.querySelectorAll("#gb .btn").forEach(x=>x.classList.toggle("on",x===b));
+    const list=CONTACTS.filter(c=>c[2]===g);
+    el.querySelector("#to").innerHTML=`<div class="chips">${list.map(c=>`<span class="chip mono addr">${addr(c[1])}</span>`).join("")}${g==="7-А клас"?'<span class="chip">+ ще 25 однокласників</span>':""}</div>`;
+    el.querySelector("#gn").textContent=g==="7-А клас"?"Один лист отримають усі 28 однокласників. Не треба вводити 28 адрес вручну!":`Лист отримають усі з групи «${g}».`;});
+}
+
+/* ---------- 5. etiquette ---------- */
+function renderEtyket(el){
+  el.innerHTML=`<p class="lead">Порівняй два листи з однаковим змістом. Натискай кнопки, щоб перемикати.</p>
+  <div class="chips"><button class="btn" data-m="bad">Поганий лист</button><button class="btn on" data-m="good">Добрий лист</button></div>
+  <div class="cols"><div id="lt"></div><div class="box" id="lg"></div></div>
+  <p class="note">В електронному листі не видно міміки й жестів, тому емоції передають смайли :-) та емодзі. Але в листі вчителю — пиши їх лише там, де доречно, і в невеликій кількості.</p>`;
+  const lt=el.querySelector("#lt"),lg=el.querySelector("#lg");
+  const A=n=>`<span class="ann">${n}</span>`;
+  const show=m=>{
+    el.querySelectorAll("[data-m]").forEach(b=>b.classList.toggle("on",b.dataset.m===m));
+    if(m==="good"){
+      lt.innerHTML=`<div class="mail"><div class="bar"><span>Новий лист</span></div>
+       <div class="mrow"><span class="k">Кому</span><span class="v mono addr">${addr("olena.informatyka@ukr.net")}</span></div>
+       <div class="mrow"><span class="k">Тема</span><span class="v">${A(1)}Питання щодо домашнього завдання 1.3</span></div>
+       <div class="mbody">${A(2)}Доброго дня, Олено Петрівно!\n\n${A(3)}Я не зрозуміла завдання 4 з параграфа 1.3. Підкажіть, ${A(4)}будь ласка, куди потрібно надіслати презентацію?\n\n${A(5)}Дякую! :-)\n${A(6)}Софія Бондар, 7-А</div></div>`;
+      lg.innerHTML=`<h3>Що тут правильно</h3><ul class="legend">
+       <li>${A(1)}<span><b>Тема</b> коротко пояснює, про що лист.</span></li>
+       <li>${A(2)}<span><b>Привітання</b> і звертання на ім'я.</span></li>
+       <li>${A(3)}<span><b>Суть</b> — коротко і зрозуміло.</span></li>
+       <li>${A(4)}<span><b>«Будь ласка»</b>, коли про щось просиш.</span></li>
+       <li>${A(5)}<span><b>Подяка</b> і доречний смайл.</span></li>
+       <li>${A(6)}<span><b>Підпис</b>: ім'я та клас.</span></li></ul>`;
+    } else {
+      lt.innerHTML=`<div class="mail badmail"><div class="bar"><span>Новий лист</span></div>
+       <div class="mrow"><span class="k">Кому</span><span class="v mono addr">${addr("olena.informatyka@ukr.net")}</span></div>
+       <div class="mrow"><span class="k">Тема</span><span class="v ph">(без теми)</span></div>
+       <div class="mbody">ЯК РОБИТИ 4 ЗАВДАННЯ??? І КУДИ СКИДАТИ</div></div>`;
+      lg.innerHTML=`<h3>Що тут не так</h3><ul class="rules">
+       <li>Немає <b>теми</b> — лист легко загубити.</li>
+       <li>Немає <b>привітання</b> і <b>підпису</b>: незрозуміло, хто пише.</li>
+       <li>Текст <b>ВЕЛИКИМИ ЛІТЕРАМИ</b> сприймається як крик.</li>
+       <li>Немає «будь ласка» і «дякую».</li>
+       <li>Незрозуміло, про який параграф ідеться.</li></ul>`;
+    }};
+  el.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>show(b.dataset.m));
+  show("good");
+}
+
+/* ---------- 6. phishing ---------- */
+const FLAGS={
+ from:"Дивна адреса відправника: це не справжня пошта ukr.net, а чужий домен help-desk.xyz.",
+ subj:"Тема лякає й квапить: великі літери, знаки оклику, погроза заблокувати.",
+ greet:"Безособове звертання «Шановний користувачу» — шахраї не знають твого імені.",
+ time:"Обмеження часом: «через 24 години». Шахраї хочуть, щоб ти діяв швидко й не думав.",
+ link:"Підозріле посилання на підробний сайт, схожий на справжній.",
+ pass:"Просять ввести логін і пароль. Справжні служби безпеки ніколи не просять такого робити!"
+};
+function renderBezpeka(el){
+  el.innerHTML=`<p class="lead">Це <b>фішинговий</b> лист — спроба «виудити» твій пароль. Натискай на підозрілі місця в листі. Знайди всі ознаки!</p>
+  <div class="cols">
+   <div class="mail"><div class="bar"><span>Вхідні</span><span class="counter" id="cnt">0 / 6</span></div>
+    <div class="mrow"><span class="k">Від</span><span class="v">Служба безпеки <button class="flag mono" data-k="from">&lt;security@ukrnet-support.help-desk.xyz&gt;</button></span></div>
+    <div class="mrow"><span class="k">Тема</span><span class="v"><button class="flag" data-k="subj"><b>Ваш акаунт буде ЗАБЛОКОВАНО!!!</b></button></span></div>
+    <div class="mbody"><button class="flag" data-k="greet">Шановний користувачу!</button>
+Вашу скриньку буде видалено <button class="flag" data-k="time">через 24 години</button>.
+Щоб зберегти її, перейдіть за посиланням:
+<button class="flag mono" data-k="link">http://ukr-net-login.xyz</button>
+і <button class="flag" data-k="pass">введіть свій логін та пароль</button>.
+
+Служба безпеки</div></div>
+   <div class="box"><h3>Знайдені ознаки</h3><ol class="found-list" id="fl"></ol><p class="note" id="fh">Поки нічого. Натисни на підозрілий фрагмент листа.</p></div>
+  </div>
+  <div class="cols">
+   <div class="box"><h3>Що робити з таким листом</h3><ul class="rules"><li>Не переходь за посиланням.</li><li>Не відповідай і не відкривай вкладення.</li><li>Познач лист як <b>спам</b> і видали.</li><li>Розкажи батькам або вчителю.</li></ul></div>
+   <div class="box"><h3>Правила безпечного листування</h3><ul class="rules"><li>Не пиши особисті дані незнайомцям.</li><li>Не зустрічайся з тими, кого знаєш лише з листування.</li><li>Не відповідай на рекламу від невідомих.</li><li>Нікому не кажи пароль і час від часу змінюй його.</li><li>На чужому комп'ютері завжди виходь з акаунта.</li></ul></div>
+  </div>`;
+  const found=[];
+  el.querySelectorAll(".flag").forEach(b=>b.onclick=()=>{const k=b.dataset.k;if(found.includes(k))return;found.push(k);
+    el.querySelectorAll(`.flag[data-k="${k}"]`).forEach(x=>x.classList.add("found"));
+    el.querySelector("#fl").innerHTML=found.map(f=>`<li>${FLAGS[f]}</li>`).join("");
+    el.querySelector("#cnt").textContent=`${found.length} / 6`;
+    el.querySelector("#fh").textContent=found.length===6?"Чудово! Ти знайшов усі ознаки фішингу.":"Шукай далі — ознак шість.";});
+}
+
+/* ---------- 7. fact ---------- */
+function renderFakt(el){
+  el.innerHTML=`<div class="cols">
+   <div class="box"><div class="label">1971 рік</div><h3 style="font-size:22px">Перший електронний лист</h3>
+    <p style="margin:0">Інженер <b>Рей Томлінсон</b> створив першу поштову програму <b>SNDMSG</b> (send message — надіслати повідомлення) для комп'ютерної мережі <b>ARPANet</b> — попередниці Інтернету.</p>
+    <p style="margin:0">Першим листом було повідомлення колегам про нову можливість спілкуватися в мережі — електронну пошту.</p></div>
+   <div class="box"><h3>Чому саме @?</h3>
+    <p style="margin:0">Томлінсону потрібен був символ, якого немає в іменах людей. Він обрав @ — англійською «at», тобто «на»: <i>користувач на такому-то комп'ютері</i>.</p>
+    <p style="margin:0">Перша адреса:</p><div class="mono addr" style="font-size:22px">${addr("tomlinson@bbn-tenexa")}</div>
+    <p class="note">Українці називають @ «равликом» або «собачкою» — за зовнішній вигляд.</p></div></div>`;
+}
+
+/* ---------- 8. quiz ---------- */
+const QA=[["Що означає Re: у темі листа?","Це відповідь на лист (reply)."],["Що означає Fw:?","Лист переслали далі (forward)."],["У якій папці шукати недописаний лист?","У Чернетках."],["З чого складається адреса e-mail?","Логін + символ @ + адреса поштового сервісу."],["Що таке фішинг?","Спроба шахраїв виманити пароль через підроблений лист або сайт."],["Навіщо групи контактів?","Щоб надіслати один лист одразу багатьом людям."]];
+function renderTest(el){
+  el.innerHTML=`<p class="lead">Спочатку відповідай усно, потім натисни на картку, щоб перевірити.</p>
+  <div class="cards">${QA.map((q,i)=>`<button class="card" data-i="${i}" aria-expanded="false"><span class="label">Запитання ${i+1}</span><span class="q">${q[0]}</span><span class="a" hidden>${q[1]}</span><span class="hint">Натисни, щоб побачити відповідь</span></button>`).join("")}</div>
+  <div class="chips"><button class="btn" id="all">Показати всі відповіді</button><button class="btn" id="hide">Сховати всі</button></div>`;
+  const set=(c,o)=>{c.classList.toggle("open",o);c.querySelector(".a").hidden=!o;c.querySelector(".hint").hidden=o;c.setAttribute("aria-expanded",o);};
+  el.querySelectorAll(".card").forEach(c=>c.onclick=()=>set(c,!c.classList.contains("open")));
+  el.querySelector("#all").onclick=()=>el.querySelectorAll(".card").forEach(c=>set(c,true));
+  el.querySelector("#hide").onclick=()=>el.querySelectorAll(".card").forEach(c=>set(c,false));
+}
+
+/* theme switch */
+(function(){
+  var root=document.documentElement,btn=document.getElementById("theme");
+  var SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+  var MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+  function current(){var t=root.getAttribute("data-theme");if(t==="dark"||t==="light")return t;return (window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";}
+  function paint(){var d=current()==="dark";btn.innerHTML=(d?SUN:MOON)+"<span>"+(d?"Світла тема":"Темна тема")+"</span>";btn.setAttribute("aria-label",d?"Увімкнути світлу тему":"Увімкнути темну тему");}
+  try{var saved=localStorage.getItem("interactive-school-theme");if(saved==="dark"||saved==="light")root.setAttribute("data-theme",saved);}catch(e){}
+  btn.onclick=function(){var next=current()==="dark"?"light":"dark";root.setAttribute("data-theme",next);try{localStorage.setItem("interactive-school-theme",next);}catch(e){}paint();};
+  paint();
+})();
+
+/* deep link: #bezpeka opens that topic */
+const h=location.hash.slice(1);const hi=T.findIndex(t=>t.id===h);if(hi>=0)open(hi);
+})();
+</script>
