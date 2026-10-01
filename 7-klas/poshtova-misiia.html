@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+<title>Поштова місія</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Rubik:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a mail client on a sorting-desk ground; mission brief on the left, the letter window on the right, answers as chips below. Airmail stripe is the one bold element. */
+:root{
+  --bg:#e9edf3; --surface:#ffffff; --surface-2:#f4f6fa; --ink:#1b2231; --muted:#5a6477; --line:#d3d9e3;
+  --red:#cf3a2c; --blue:#1d4ea3; --ok:#18804a; --ok-bg:#e3f4ea; --bad:#b8322a; --bad-bg:#fbe7e5; --focus:#1d4ea3;
+  --f-display:"Unbounded","Rubik",system-ui,sans-serif; --f-body:"Rubik",system-ui,-apple-system,"Segoe UI",sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11151d; --surface:#1a202c; --surface-2:#222a38; --ink:#e7ebf2; --muted:#9aa3b4; --line:#2e3748;
+  --red:#ee6b5d; --blue:#7aa2ee; --ok:#52c688; --ok-bg:#16301f; --bad:#f0776a; --bad-bg:#3a1c1a; --focus:#7aa2ee; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11151d; --surface:#1a202c; --surface-2:#222a38; --ink:#e7ebf2; --muted:#9aa3b4; --line:#2e3748;
+  --red:#ee6b5d; --blue:#7aa2ee; --ok:#52c688; --ok-bg:#16301f; --bad:#f0776a; --bad-bg:#3a1c1a; --focus:#7aa2ee; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5}
+.wrap{max-width:1080px;margin:0 auto;padding-inline:16px;padding-block:20px 48px;display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.15}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.mono{font-family:var(--f-mono)}
+.label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+
+/* top bar */
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px}
+.brand h1{font-size:20px}
+.home{margin-left:8px;font-size:14px;color:var(--muted);border:1.5px solid var(--line);border-radius:999px;padding:4px 12px;text-decoration:none}
+.home:hover{color:var(--ink);border-color:var(--blue)}
+.linkout{font-family:var(--f-mono);font-size:13px}
+.at{display:inline-grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--red);color:#fff;font-family:var(--f-mono);font-weight:600;font-size:20px}
+.track{display:flex;gap:6px;flex-wrap:wrap}
+.pip{width:30px;height:22px;border-radius:3px;border:1.5px solid var(--line);background:var(--surface);position:relative;font-size:11px;display:grid;place-items:center;color:var(--muted);font-variant-numeric:tabular-nums}
+.pip.done{border-color:var(--ok);color:var(--ok)}
+.pip.now{border-color:var(--blue);color:var(--blue);font-weight:600}
+.score{font-family:var(--f-display);font-size:15px;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* game grid */
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:20px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.brief{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden}
+.brief h2{font-size:22px}
+.brief p{margin:0}
+.stamp{position:absolute;top:14px;right:14px;width:62px;height:72px;border:2px dashed var(--red);border-radius:4px;display:grid;place-items:center;text-align:center;color:var(--red);font-family:var(--f-display);font-size:11px;line-height:1.2;transform:rotate(6deg)}
+.stamp b{display:block;font-size:22px}
+.brief .kind{padding-right:78px}
+.hint{background:var(--surface-2);border-radius:6px;padding:10px 12px;font-size:14px;color:var(--muted)}
+.hint .mono{color:var(--ink)}
+
+/* mail window */
+.win{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column}
+.air{height:10px;background:repeating-linear-gradient(-45deg,var(--red) 0 14px,var(--surface) 14px 22px,var(--blue) 22px 36px,var(--surface) 36px 44px)}
+.win-head{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--surface-2);font-weight:600;font-size:14px}
+.row{display:grid;grid-template-columns:90px minmax(0,1fr);gap:10px;align-items:baseline;padding:10px 16px;border-bottom:1px solid var(--line);min-height:44px}
+.row .k{color:var(--muted);font-size:14px}
+.row .v{min-width:0;overflow-wrap:anywhere}
+.row.active{background:var(--surface-2);box-shadow:inset 3px 0 0 var(--blue)}
+.ph{color:var(--muted);font-style:italic}
+.bodyrow{padding:16px;min-height:110px;border-bottom:1px solid var(--line);white-space:pre-wrap;overflow-wrap:anywhere}
+.bodyrow.active{background:var(--surface-2);box-shadow:inset 3px 0 0 var(--blue)}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:2px 10px;font-size:14px}
+.addr .lg{color:var(--blue)} .addr .sym{color:var(--red);font-weight:600} .addr .dm{color:var(--ok)}
+.log{padding:12px 16px;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.log li{margin:0}
+.log ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.folders{display:grid;grid-template-columns:170px minmax(0,1fr);min-height:220px}
+@media (max-width:520px){.folders{grid-template-columns:minmax(0,1fr)}}
+.side{border-right:1px solid var(--line);padding:10px;display:flex;flex-direction:column;gap:4px;background:var(--surface-2)}
+.side div{padding:6px 10px;border-radius:6px;font-size:14px}
+.side .hl{background:var(--ok-bg);color:var(--ok);font-weight:600}
+.fold-main{padding:16px;display:flex;flex-direction:column;gap:8px;font-size:14px}
+
+/* answer panel */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.q{font-weight:600;font-size:17px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{text-align:left;background:var(--surface-2);border:1.5px solid var(--line);border-radius:8px;padding:10px 14px;transition:border-color .15s,transform .1s}
+.opt:hover:not(:disabled){border-color:var(--blue)}
+.opt:active:not(:disabled){transform:scale(.99)}
+.opt:disabled{cursor:not-allowed;opacity:.55;text-decoration:line-through}
+.opt.right{border-color:var(--ok);background:var(--ok-bg);opacity:1;text-decoration:none}
+.fb{border-radius:8px;padding:10px 14px;font-size:15px}
+.fb.good{background:var(--ok-bg);color:var(--ok)}
+.fb.bad{background:var(--bad-bg);color:var(--bad)}
+.fb b{display:block}
+.shake{animation:shake .35s}
+@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.primary{align-self:flex-start;background:var(--blue);color:#fff;border:0;border-radius:8px;padding:12px 22px;font-weight:600;font-size:16px}
+[data-theme="dark"] .primary{color:#0f1420}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .primary{color:#0f1420}}
+.primary:hover{filter:brightness(1.08)}
+
+/* flying envelope */
+.fly{position:fixed;left:50%;top:55%;font-size:44px;pointer-events:none;animation:fly .9s ease-in forwards;z-index:5}
+@keyframes fly{0%{transform:translate(-50%,0) rotate(0);opacity:1}100%{transform:translate(40vw,-60vh) rotate(-25deg);opacity:0}}
+
+/* start + end */
+.hero{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.hero-in{padding:28px 24px;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:28px}
+@media (max-width:760px){.hero-in{grid-template-columns:minmax(0,1fr)}}
+.hero h2{font-size:clamp(28px,5vw,44px);font-weight:800}
+.hero p{margin:0;max-width:60ch;color:var(--muted)}
+.form{display:flex;flex-direction:column;gap:8px}
+.form input{font:inherit;padding:10px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--surface-2);color:var(--ink);max-width:320px;width:100%}
+.mlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.mlist li{display:grid;grid-template-columns:32px minmax(0,1fr);gap:10px;align-items:center;font-size:15px;padding:8px 10px;border-radius:6px;background:var(--surface-2)}
+.mlist .n{font-family:var(--f-display);color:var(--red);font-size:14px}
+.stack{display:flex;flex-direction:column;gap:16px}
+.post{width:150px;height:150px;border-radius:50%;border:3px solid var(--red);color:var(--red);display:grid;place-items:center;text-align:center;transform:rotate(-8deg);font-family:var(--f-display);flex:none}
+.post b{font-size:34px;display:block;font-variant-numeric:tabular-nums}
+.post span{font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.result{display:flex;flex-wrap:wrap;gap:24px;align-items:center}
+.miss{display:flex;flex-direction:column;gap:10px;margin:0;padding:0;list-style:none}
+.miss li{background:var(--surface-2);border-radius:8px;padding:10px 14px;font-size:14px}
+.miss .ans{color:var(--ok);font-weight:600}
+.note{font-size:14px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.shake,.fly{animation:none}.fly{display:none}}
+
+/* gmail stage */
+.gm{background:var(--surface);border:2px solid var(--red);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.gm h3{font-size:18px;display:flex;align-items:center;gap:10px}
+.gm-badge{display:inline-flex;align-items:center;gap:6px;background:var(--red);color:#fff;border-radius:999px;padding:3px 10px;font-family:var(--f-body);font-size:12px;letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+.tasks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.task{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border-radius:8px;background:var(--surface-2);cursor:pointer;border:1.5px solid transparent}
+.task input{width:22px;height:22px;margin:1px 0 0;flex:none;cursor:pointer}
+.task.done{border-color:var(--ok);background:var(--ok-bg)}
+.task.done span{color:var(--ok)}
+.copies{display:flex;flex-wrap:wrap;gap:8px}
+.copy{border:1.5px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 12px;font-weight:600;font-size:14px}
+.copy:hover{border-color:var(--blue)}
+.copy.ok{border-color:var(--ok);color:var(--ok)}
+.btnrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.ghost{background:transparent;border:0;color:var(--muted);text-decoration:underline;font-size:14px;padding:8px}
+.primary:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.cfg{background:var(--surface-2);border-radius:8px;padding:10px 14px}
+.cfg summary{cursor:pointer;font-weight:600;font-size:14px;color:var(--muted)}
+.cfg .form{margin-top:10px}
+.final{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.final li{display:flex;gap:10px;align-items:center;padding:8px 12px;border-radius:8px;background:var(--surface-2);font-size:15px}
+.final .st{font-weight:600;min-width:92px}
+.final .y{color:var(--ok)} .final .n{color:var(--bad)}
+</style>
+
+<div class="wrap" id="app"></div>
+
+<script>
+/* ===== НАЛАШТУВАННЯ ДЛЯ ВЧИТЕЛЯ =====
+   Змініть ці значення один раз (відкрийте файл у Блокноті), і вони будуть на всіх комп'ютерах.
+   Також їх можна змінити на стартовому екрані гри в розділі «Налаштування для вчителя». */
+var CONFIG = {
+  teacherName: "Олена Петрівна",           // як записати в контактах
+  teacherGreeting: "Олено Петрівно",       // звертання в листі (кличний відмінок)
+  teacherEmail: "olena.petrivna@example.com",   // адреса вчителя
+  groupEmail: "7a-klas@example.com",            // адреса групи класу
+  className: "7-А"
+};
+(function(){
+var CHK='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>';
+var ENV='<svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#1d4ea3" stroke-width="1.6" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2" fill="#ffffff"/><path d="m2 7 10 7 10-7"/></svg>';
+var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});};
+
+/* teacher overrides saved on this computer */
+var CFG=Object.assign({},CONFIG);
+try{var sv=JSON.parse(localStorage.getItem("misiia-config")||"null");if(sv)Object.assign(CFG,sv);}catch(e){}
+/* налаштування з посилання вчителя: ?t=Ім'я&g=Звертання&e=адреса&grp=адреса_групи&c=клас */
+var PKEYS={t:"teacherName",g:"teacherGreeting",e:"teacherEmail",grp:"groupEmail",c:"className"};
+var FROM_LINK=false;
+try{var qs=new URLSearchParams(location.search);Object.keys(PKEYS).forEach(function(k){var v=qs.get(k);if(v&&v.trim()){CFG[PKEYS[k]]=v.trim();FROM_LINK=true;}});}catch(e){}
+function studentLink(c){var base=location.href.split("#")[0].split("?")[0];var p=[];Object.keys(PKEYS).forEach(function(k){var v=c[PKEYS[k]];if(v)p.push(k+"="+encodeURIComponent(v));});return base+"?"+p.join("&");}
+
+function splitMail(m){var i=m.indexOf("@");return i<0?[m,""]:[m.slice(0,i),m.slice(i+1)];}
+function swap2(str){var p=str.split(".");var w=p[0];if(w.length<3)return str+"m";p[0]=w[0]+w[2]+w[1]+w.slice(3);return p.join(".");}
+function wrongs(m){
+  var a=splitMail(m),lg=a[0],dm=a[1];
+  var noAt=lg+"."+dm;
+  var typo=lg+"@"+swap2(dm);
+  var sp=lg.indexOf(".")>0?lg.replace("."," ")+"@"+dm:lg.slice(0,Math.ceil(lg.length/2))+" "+lg.slice(Math.ceil(lg.length/2))+"@"+dm;
+  return {noAt:noAt,typo:typo,space:sp};
+}
+function first(n){return n.split(" ")[0];}
+
+function buildMissions(){
+  var T=CFG.teacherEmail,G=CFG.groupEmail,TN=CFG.teacherName,TG=CFG.teacherGreeting||CFG.teacherName,wt=wrongs(T),gd=splitMail(G)[1]||"school.edu.ua";
+  var mate="sofia.bondar@"+gd;
+  return [
+  {type:"contact",train:true,title:"Вчитель у контактах",brief:"Спочатку додай вчителя до своїх контактів. Тоді не треба буде щоразу вводити адресу — Gmail сам її підкаже.",
+   hint:'Адреса вчителя: <span class="mono">'+esc(T)+'</span>',
+   steps:[
+    {field:"where",prompt:"Де в Google зберігаються адреси людей, яким ти пишеш?",options:[
+      {t:"Google Контакти (адресна книга)",ok:true,why:"Контакти — це адресна книга: імена та адреси людей, з якими ти листуєшся."},
+      {t:"Папка «Чернетки»",why:"У Чернетках лежать недописані листи, а не адреси."},
+      {t:"Папка «Кошик»",why:"У Кошику — видалені листи."}]},
+    {field:"cname",prompt:"Як підписати контакт, щоб легко його знайти?",options:[
+      {t:TN+" — вчитель інформатики",ok:true,why:"Ім'я і предмет: одразу зрозуміло, хто це."},
+      {t:"вчитель",why:"У тебе багато вчителів — з такого підпису незрозуміло, хто це."},
+      {t:"контакт 1",why:"Через тиждень ти не згадаєш, чия це адреса."}]},
+    {field:"cemail",prompt:"Яку адресу записати в контакт?",options:[
+      {t:T,ok:true,why:"Логін, символ @ і адреса сервісу — усе правильно."},
+      {t:wt.noAt,why:"Бракує символу @ між логіном і адресою сервісу."},
+      {t:wt.typo,why:"Придивись: у назві сервісу переставлені літери. Лист на таку адресу не дійде."},
+      {t:wt.space,why:"В адресі електронної пошти не буває пробілів."}]}
+   ],
+   gmail:{title:"Додай вчителя в Google Контакти",tasks:[
+     "Відкрий свою пошту Gmail.",
+     "Угорі праворуч натисни кнопку «Додатки Google» (квадрат з 9 крапок) і вибери «Контакти».",
+     "Натисни «Створити контакт».",
+     "Введи ім'я «"+TN+"» і адресу "+T+".",
+     "Натисни «Зберегти»."],
+     copies:[["Скопіювати адресу",T],["Скопіювати ім'я",TN]]}},
+
+  {type:"compose",train:true,title:"Пробний лист учителю",brief:"Тренування: склади тут зразковий лист за правилами етикету, а потім перенеси його в Gmail і надішли. Тут можна копіювати.",
+   hint:"Вчитель уже є у твоїх контактах.",
+   steps:[
+    {field:"to",prompt:"Кому надіслати лист?",options:[
+      {t:TN+" ("+T+") — з контактів",ok:true,plain:true,why:"Вибрати адресу з контактів — найшвидше й без помилок."},
+      {t:G,why:"Це адреса групи всього класу. Лист отримають усі однокласники, а не вчитель."},
+      {t:wt.typo,why:"У назві сервісу помилка — лист не дійде."}]},
+    {field:"subject",prompt:"Яку тему вказати?",options:[
+      {t:"Практична робота «Електронна пошта» — {name}, {cls}",ok:true,why:"Тема пояснює зміст, і вчитель одразу бачить, чия це робота."},
+      {t:"(без теми)",why:"Лист без теми легко загубити. За етикетом тему вказують завжди."},
+      {t:"ПРИВІТ!!!",why:"Великі літери звучать як крик, а тема нічого не каже про зміст."}]},
+    {field:"body",prompt:"Обери текст листа.",options:[
+      {t:"Доброго дня, "+TG+"!\n\nНадсилаю лист у межах практичної роботи «Електронна пошта». На уроці ми вчилися додавати контакти, писати й надсилати листи.\n\nДякую за урок!\n{name}, {cls}",ok:true,why:"Привітання, суть, подяка й підпис — усі правила етикету виконано."},
+      {t:"привіт це я, робота",why:"Немає звертання, пояснення й підпису. Так учителю не пишуть."},
+      {t:"ДОБРОГО ДНЯ! ЦЕ ПРАКТИЧНА РОБОТА. {name}",why:"Текст великими літерами важко читати, і він звучить як крик."}]}
+   ],
+   gmail:{title:"Надішли пробний лист у Gmail",letter:true,tasks:[
+     "Натисни «Написати».",
+     "У полі «Кому» почни вводити «"+first(TN)+"» — Gmail підкаже адресу з контактів. Вибери її.",
+     "Скопіюй тему кнопкою вище і встав її в поле «Тема».",
+     "Скопіюй текст і встав його в лист.",
+     "Натисни «Надіслати» і перевір, що лист з'явився в папці «Надіслані»."]}},
+
+  {type:"compose",title:"Лист однокласникам",brief:"Тепер пишеш сам! Розберись зі зразком, а потім надішли всьому класу через групу СВОЮ пораду з безпеки.",
+   hint:'Адреса групи класу: <span class="mono">'+esc(G)+'</span>',
+   steps:[
+    {field:"to",prompt:"Кому надіслати, щоб лист отримав увесь клас?",options:[
+      {t:G,ok:true,why:"Це адреса групи: лист отримають усі учні класу."},
+      {t:mate,why:"Так лист отримає лише Софія, а не весь клас."},
+      {t:"усі однокласники",plain:true,why:"Це не адреса. Gmail не знає, кому надсилати."}]},
+    {field:"subject",prompt:"Яку тему вказати?",options:[
+      {t:"Порада з безпеки — {name}, {cls}",ok:true,why:"З теми одразу зрозуміло, про що лист і від кого."},
+      {t:"лист",why:"Тема «лист» нічого не пояснює."},
+      {t:"ТЕРМІНОВО ВСІМ!!!",why:"Капс і знаки оклику схожі на спам."}]},
+    {field:"body",prompt:"Обери текст листа.",options:[
+      {t:"Привіт усім!\n\nДілюся порадою: нікому не повідомляйте пароль від пошти й не переходьте за підозрілими посиланнями в листах.\n\nГарного дня :-)\n{name}",ok:true,why:"Ввічливо, корисно, з підписом — і без особистих даних."},
+      {t:"Привіт! Мій номер 0971234567, живу на вулиці Шевченка, 5. Пишіть!",why:"Лист отримає багато людей. Не поширюй особисті дані: телефон і домашню адресу."},
+      {t:"ЧИТАЙТЕ ВСІ!!! НЕ КАЖІТЬ НІКОМУ ПАРОЛЬ",why:"Великі літери звучать як крик, і бракує привітання та підпису."}]}
+   ],
+   gmail:{title:"Напиши свій лист групі в Gmail",own:[
+     "Тема: «Порада з безпеки — твоє ім'я».",
+     "Привітання до всього класу.",
+     "Своя порада, як безпечно користуватися Інтернетом чи поштою. Не та, що в зразку!",
+     "Жодних особистих даних: телефону, домашньої адреси, паролів.",
+     "Підпис з іменем."],tasks:[
+     "Натисни «Написати».",
+     "У полі «Кому» сам надрукуй адресу групи (вона є в завданні ліворуч).",
+     "Надрукуй тему й напиши лист за вимогами вище.",
+     "Перечитай і натисни «Надіслати».",
+     "Відкрий «Вхідні»: там з'являться листи від однокласників."]}},
+
+  {type:"inbox",title:"Відповідь однокласнику",brief:"Однокласники надіслали поради всьому класу. Відповідай одному з них — своїми словами і тільки йому.",
+   letter:{from:"Софія Бондар",addr:mate,to:G,subject:"Порада з безпеки від Софії",body:"Привіт усім!\n\nНе відкривайте файли .exe з листів від незнайомців — там можуть бути віруси.\n\nСофія"},
+   steps:[
+    {field:"action",prompt:"Яку кнопку натиснути, щоб подякувати лише Софії?",options:[
+      {t:"Відповісти",ok:true,why:"Відповідь отримає тільки Софія."},
+      {t:"Відповісти всім",why:"Лист надіслали всьому класу, тож «Відповісти всім» розішле твою подяку всім учням. Для особистої відповіді це зайве."},
+      {t:"Переслати",why:"«Переслати» надсилає лист іншій людині, а не Софії."}]},
+    {field:"subject",prompt:"Яка тема буде у відповіді?",options:[
+      {t:"Re: Порада з безпеки від Софії",ok:true,why:"Re: (англ. reply — відповідь) Gmail додає сам."},
+      {t:"Fw: Порада з безпеки від Софії",why:"Fw: з'являється, коли лист пересилають."},
+      {t:"Дякую",why:"Під час відповіді тема підставляється сама з позначкою Re:."}]}
+   ],
+   gmail:{title:"Відповідай однокласнику в Gmail",own:[
+     "Звертання на ім'я до автора листа.",
+     "Подяка за пораду.",
+     "1–2 речення своїми словами: чи згоден ти з порадою і чому (або додай свою пораду).",
+     "Підпис з іменем.",
+     "Тема не змінюється — у ній має бути Re:."],tasks:[
+     "У «Вхідних» відкрий лист від однокласника чи однокласниці, що надійшов через групу.",
+     "Натисни «Відповісти» (не «Відповісти всім»!).",
+     "Своїми словами подякуй і напиши, чим тобі корисна ця порада. Не забудь підпис.",
+     "Натисни «Надіслати» і перевір, що в темі є Re:."]}},
+
+  {type:"inbox",title:"Фішинг і підсумковий лист",brief:"Останнє завдання. Розберись із підозрілим листом, а потім напиши вчителю власний підсумковий лист.",
+   letter:{from:"Служба безпеки",addr:"security@gmail-support.help-desk.xyz",subject:"Ваш акаунт буде ЗАБЛОКОВАНО!",body:"Шановний користувачу!\nЧерез 24 години вашу скриньку буде видалено.\nЩоб зберегти її, перейдіть за посиланням і введіть логін та пароль:\nhttp://gmail-login.xyz"},
+   steps:[
+    {field:"q",prompt:"Що підозріле в цьому листі?",options:[
+      {t:"Дивна адреса відправника, залякування і прохання ввести пароль",ok:true,why:"Це ознаки фішингу: шахраї намагаються «виудити» пароль через підробний сайт."},
+      {t:"Нічого, це лист від служби безпеки",why:"Справжня пошта ніколи не просить ввести пароль за посиланням з листа."},
+      {t:"Лише великі літери в темі",why:"Капс — лише одна ознака. Головне: чужий домен і прохання ввести пароль."}]},
+    {field:"action",prompt:"Що зробиш?",options:[
+      {t:"Позначу як спам, видалю і скажу вчителю",ok:true,why:"Не переходь за посиланням і не відповідай на такі листи."},
+      {t:"Перейду за посиланням і введу пароль",why:"Так шахраї отримають доступ до твоєї скриньки."},
+      {t:"Відповім, що мій пароль 12345",why:"Пароль не можна повідомляти нікому."}]}
+   ],
+   gmail:{title:"Напиши вчителю підсумковий лист",own:[
+     "Тема точно за зразком: «Підсумок уроку — твоє прізвище, ім'я, клас».",
+     "Привітання і звертання: «"+TG+"».",
+     "Своїми словами: дві ознаки фішингового листа і що робити з таким листом.",
+     "1–2 речення: що нового ти дізнався(-лася) на уроці.",
+     "Ввічливе завершення і підпис: прізвище, ім'я, клас.",
+     "Без тексту ВЕЛИКИМИ ЛІТЕРАМИ. Перечитай і виправ помилки."],tasks:[
+     "Натисни «Написати» і вибери вчителя з контактів.",
+     "Сам надрукуй тему за зразком.",
+     "Сам напиши лист за вимогами вище.",
+     "Перечитай, натисни «Надіслати» і перевір папку «Надіслані»."]}}
+  ];
+}
+var MISSIONS=buildMissions();
+function total(){return MISSIONS.reduce(function(s,m){return s+m.steps.length;},0);}
+
+var $=function(s){return document.querySelector(s);};
+var app=$("#app");
+var S;
+function fresh(){return {screen:"start",name:S&&S.name||"",cls:S&&S.cls||CFG.className,mi:0,si:0,stage:"steps",gm:[],gmDone:{},order:{},tried:[],fb:null,done:{},score:0,misses:[]};}
+function nm(){return S.name.trim()||"Учень";}
+function cls(){return (S.cls||"").trim()||CFG.className;}
+function fill(t){return t.replace(/\{name\}/g,nm()).replace(/\{cls\}/g,cls());}
+function addr(t){var p=t.split("@");if(p.length<2)return esc(t);return '<span class="lg">'+esc(p[0])+'</span>'+p.slice(1).map(function(x){return '<span class="sym">@</span><span class="dm">'+esc(x)+'</span>';}).join("");}
+function optLabel(st,o){if((st.field==="to"||st.field==="cemail")&&!o.plain)return '<span class="mono addr">'+addr(o.t)+'</span>';return esc(fill(o.t)).replace(/\n+/g," ");}
+function shuffled(n,key){if(!S.order[key]){var a=[];for(var i=0;i<n;i++)a.push(i);for(var j=a.length-1;j>0;j--){var k=Math.floor(Math.random()*(j+1));var t=a[j];a[j]=a[k];a[k]=t;}S.order[key]=a;}return S.order[key];}
+function chosen(mi,field){var m=MISSIONS[mi];for(var i=0;i<m.steps.length;i++){if(m.steps[i].field===field&&S.done[mi+"."+i]!==undefined)return m.steps[i].options[S.done[mi+"."+i]];}return null;}
+function stepsDone(){return S.si>=MISSIONS[S.mi].steps.length;}
+
+function topbar(){
+  var pips=MISSIONS.map(function(m,i){var c=i<S.mi?"done":(i===S.mi&&S.screen==="play"?"now":"");return '<div class="pip '+c+'" title="'+esc(m.title)+'">'+(i<S.mi?CHK:(i+1))+'</div>';}).join("");
+  return '<div class="bar"><div class="brand"><span class="at" aria-hidden="true">@</span><h1>Поштова місія</h1><a class="home" href="../index.html">На головну</a></div>'+
+    (S.screen==="play"?'<div class="track" aria-label="Прогрес місій">'+pips+'</div><div class="score">Бали: '+S.score+' / '+total()+'</div>':'')+'</div>';
+}
+
+/* ---------- start ---------- */
+function renderStart(){
+  app.innerHTML=topbar()+'<section class="hero"><div class="air"></div><div class="hero-in">'+
+   '<div class="stack"><div class="label">Практична робота · §1.3–1.4</div><h2>Поштова місія в Gmail</h2>'+
+   '<p>У кожній місії спочатку розберись із завданням тут, а потім виконай його у своїй справжній пошті Gmail. Перші дві місії — <b>тренування</b>: лист можна скопіювати. В останніх трьох ти <b>пишеш сам</b>, своїми словами — саме ці листи оцінює вчитель.</p>'+
+   '<form class="form" id="f"><label class="label" for="nm">Прізвище та ім\'я</label><input id="nm" maxlength="40" placeholder="Наприклад, Софія Бондар" value="'+esc(S.name)+'">'+
+   '<label class="label" for="cl">Клас</label><input id="cl" maxlength="10" value="'+esc(S.cls)+'">'+
+   '<button class="primary" type="submit">Почати місію</button></form>'+
+   (FROM_LINK?'<p class="note" style="margin:0">Дані вчителя завантажено з посилання — нічого налаштовувати не треба.</p>':'<details class="cfg"><summary>Налаштування для вчителя</summary><p class="note" style="margin:8px 0 0">Впишіть свої дані й натисніть «Створити посилання для учнів». Учні відкривають гру за цим посиланням — і все вже налаштовано, на будь-якому комп\'ютері.</p><form class="form" id="cf">'+
+    '<label class="label" for="tn">Ім\'я вчителя (як звертатися)</label><input id="tn" value="'+esc(CFG.teacherName)+'">'+
+    '<label class="label" for="tg">Звертання в листі (кличний відмінок)</label><input id="tg" value="'+esc(CFG.teacherGreeting||'')+'">'+
+    '<label class="label" for="te">Адреса вчителя</label><input id="te" class="mono" value="'+esc(CFG.teacherEmail)+'">'+
+    '<label class="label" for="ge">Адреса групи класу</label><input id="ge" class="mono" value="'+esc(CFG.groupEmail)+'">'+
+    '<label class="label" for="dc">Клас за замовчуванням</label><input id="dc" value="'+esc(CFG.className)+'">'+
+    '<button class="primary" type="submit">Створити посилання для учнів</button><span class="note" id="cfn"></span>'+
+    '<div id="lk" hidden><label class="label" for="lko">Посилання для учнів</label><input id="lko" class="linkout" readonly><button class="copy" type="button" id="lkc">Скопіювати посилання</button></div></form></details>')+'</div>'+
+   '<div class="stack"><div class="label">Місії</div><ol class="mlist">'+MISSIONS.map(function(m,i){return '<li><span class="n">0'+(i+1)+'</span><span>'+esc(m.title)+(m.train?' <span class="note">· тренування</span>':' <span class="note">· пишеш сам</span>')+'</span></li>';}).join("")+'</ol>'+
+   '<div class="hint">Вчитель: <b>'+esc(CFG.teacherName)+'</b>, <span class="mono">'+esc(CFG.teacherEmail)+'</span><br>Група класу: <span class="mono">'+esc(CFG.groupEmail)+'</span></div></div>'+
+  '</div></section>';
+  $("#f").addEventListener("submit",function(e){e.preventDefault();S.name=$("#nm").value;S.cls=$("#cl").value;S.screen="play";MISSIONS=buildMissions();render();});
+  if($("#cf"))$("#cf").addEventListener("submit",function(e){e.preventDefault();
+    CFG.teacherName=$("#tn").value.trim()||CONFIG.teacherName;CFG.teacherGreeting=$("#tg").value.trim()||CFG.teacherName;CFG.teacherEmail=$("#te").value.trim()||CONFIG.teacherEmail;CFG.groupEmail=$("#ge").value.trim()||CONFIG.groupEmail;CFG.className=$("#dc").value.trim()||CONFIG.className;
+    try{localStorage.setItem("misiia-config",JSON.stringify(CFG));}catch(err){}
+    MISSIONS=buildMissions();S.cls=CFG.className;renderStart();$(".cfg").open=true;
+    var url=studentLink(CFG);$("#lk").hidden=false;$("#lko").value=url;$("#cfn").textContent="Готово. Дані також збережено на цьому комп'ютері.";
+    $("#lkc").addEventListener("click",function(){copyText(url,this);});$("#lko").addEventListener("focus",function(){this.select();});});
+}
+
+/* ---------- windows ---------- */
+function contactWin(m){
+  var w=chosen(S.mi,"where"),n=chosen(S.mi,"cname"),e=chosen(S.mi,"cemail");var act=!stepsDone()&&S.stage==="steps"?m.steps[S.si].field:"";
+  return '<div class="win"><div class="air"></div><div class="win-head"><span>'+(w?"Google Контакти · Новий контакт":"Новий контакт")+'</span><span class="label">'+esc(nm())+'</span></div>'+
+   '<div class="row '+(act==="where"?"active":"")+'"><span class="k">Де</span><span class="v">'+(w?esc(w.t):'<span class="ph">обери, де зберігати</span>')+'</span></div>'+
+   '<div class="row '+(act==="cname"?"active":"")+'"><span class="k">Ім\'я</span><span class="v">'+(n?esc(n.t):'<span class="ph">як підписати</span>')+'</span></div>'+
+   '<div class="row '+(act==="cemail"?"active":"")+'" style="border-bottom:0"><span class="k">Ел. пошта</span><span class="v">'+(e?'<span class="mono addr">'+addr(e.t)+'</span>':'<span class="ph">адреса</span>')+'</span></div></div>';
+}
+function composeWin(m){
+  var act=!stepsDone()&&S.stage==="steps"?m.steps[S.si].field:"";
+  var to=chosen(S.mi,"to"),sub=chosen(S.mi,"subject"),body=chosen(S.mi,"body");
+  function cl(f){return act===f?"active":"";}
+  if(S.stage==="gmail"&&m.gmail&&m.gmail.own){sub={t:"",hidden:1};body={t:"",hidden:1};}
+  var toH=to?(to.plain?'<span class="chip">'+esc(to.t)+'</span>':'<span class="mono addr">'+addr(to.t)+'</span>'):'<span class="ph">обери адресу</span>';
+  return '<div class="win"><div class="air"></div><div class="win-head"><span>Новий лист</span><span class="label">від: '+esc(nm())+'</span></div>'+
+   '<div class="row '+cl("to")+'"><span class="k">Кому</span><span class="v">'+toH+'</span></div>'+
+   '<div class="row '+cl("subject")+'"><span class="k">Тема</span><span class="v">'+(sub?(sub.hidden?'<span class="ph">зразок сховано</span>':esc(fill(sub.t))):'<span class="ph">обери тему</span>')+'</span></div>'+
+   '<div class="bodyrow '+cl("body")+'" style="border-bottom:0">'+(body?(body.hidden?'<span class="ph">Зразок сховано. Тепер напиши СВІЙ лист у Gmail — своїми словами, за вимогами нижче.</span>':esc(fill(body.t))):'<span class="ph">текст листа</span>')+'</div></div>';
+}
+function inboxWin(m){
+  var L=m.letter;
+  var acts=m.steps.map(function(st,i){var d=S.done[S.mi+"."+i];if(d===undefined)return "";var o=st.options[d];return '<li>'+(st.field==="subject"?"Тема: ":"")+esc(fill(o.t))+'</li>';}).join("");
+  return '<div class="win"><div class="air"></div><div class="win-head"><span>Вхідні</span><span class="label">1 новий лист</span></div>'+
+   '<div class="row"><span class="k">Від</span><span class="v">'+esc(L.from)+' <span class="mono addr">&lt;'+addr(L.addr)+'&gt;</span></span></div>'+
+   (L.to?'<div class="row"><span class="k">Кому</span><span class="v mono addr">'+addr(L.to)+'</span></div>':'')+
+   '<div class="row"><span class="k">Тема</span><span class="v"><b>'+esc(L.subject)+'</b></span></div>'+
+   '<div class="bodyrow">'+esc(L.body)+'</div>'+
+   '<div class="log"><span class="label">Твої дії</span>'+(acts?'<ol>'+acts+'</ol>':'<span class="ph">поки нічого</span>')+'</div></div>';
+}
+
+/* ---------- play ---------- */
+function renderPlay(){
+  var m=MISSIONS[S.mi];
+  var win=m.type==="compose"?composeWin(m):m.type==="contact"?contactWin(m):inboxWin(m);
+  var panel;
+  if(S.stage==="gmail"){panel=gmailPanel(m);}
+  else if(stepsDone()){
+    var btn=m.gmail?"Тепер у Gmail":(S.mi===MISSIONS.length-1?"Завершити":"Наступна місія");
+    panel='<div class="panel">'+(S.fb?fbHtml():"")+'<div class="q">Готово! Ти склав усе правильно.</div><button class="primary" id="next">'+btn+'</button></div>';
+  } else {
+    var st=m.steps[S.si],ord=shuffled(st.options.length,S.mi+"."+S.si);
+    panel='<div class="panel"><div class="label">Крок '+(S.si+1)+' з '+m.steps.length+'</div><div class="q">'+esc(st.prompt)+'</div>'+
+     '<div class="opts" id="opts">'+ord.map(function(i){var o=st.options[i];return '<button class="opt" data-i="'+i+'" '+(S.tried.indexOf(i)>=0?"disabled":"")+'>'+optLabel(st,o)+'</button>';}).join("")+'</div>'+(S.fb?fbHtml():"")+'</div>';
+  }
+  var kind={compose:"Новий лист",inbox:"Вхідний лист",contact:"Адресна книга"}[m.type];
+  app.innerHTML=topbar()+'<div class="grid"><aside class="brief"><div class="stamp">місія<b>'+(S.mi+1)+'</b>з '+MISSIONS.length+'</div>'+
+    '<div class="label kind">'+kind+(m.train?' · тренування':' · пишеш сам')+'</div><h2 class="kind">'+esc(m.title)+'</h2><p>'+esc(m.brief)+'</p>'+(m.hint?'<div class="hint">'+m.hint+'</div>':'')+
+    '<div class="note">Кольори в адресі: <span class="mono addr"><span class="lg">логін</span><span class="sym">@</span><span class="dm">сервіс</span></span></div></aside>'+
+    '<div class="stack">'+win+panel+'</div></div>';
+  var opts=$("#opts");if(opts)opts.addEventListener("click",function(e){var b=e.target.closest(".opt");if(b&&!b.disabled)choose(+b.getAttribute("data-i"));});
+  var nx=$("#next");if(nx)nx.addEventListener("click",function(){if(m.gmail){S.stage="gmail";S.gm=[];S.fb=null;render();}else nextMission();});
+  if(S.stage==="gmail")wireGmail(m);
+}
+function fbHtml(){return '<div class="fb '+(S.fb.good?"good":"bad")+'" role="status"><b>'+(S.fb.good?"Правильно!":"Не зовсім.")+'</b>'+esc(S.fb.why)+'</div>';}
+function choose(i){
+  var st=MISSIONS[S.mi].steps[S.si],o=st.options[i];
+  if(o.ok){
+    if(S.tried.length===0)S.score++;else S.misses.push({m:MISSIONS[S.mi].title,q:st.prompt,a:fill(o.t).replace(/\n+/g," "),why:o.why});
+    S.done[S.mi+"."+S.si]=i;S.si++;S.tried=[];S.fb={good:true,why:o.why};render();
+  } else {
+    S.tried.push(i);S.fb={good:false,why:o.why};render();
+    var nb=document.querySelector('.opt[data-i="'+i+'"]');if(nb)nb.classList.add("shake");
+  }
+}
+
+/* ---------- gmail stage ---------- */
+function letterCopies(){
+  var sub=chosen(S.mi,"subject"),body=chosen(S.mi,"body"),out=[];
+  if(sub)out.push(["Скопіювати тему",fill(sub.t)]);
+  if(body)out.push(["Скопіювати текст",fill(body.t)]);
+  return out;
+}
+function gmailPanel(m){
+  var g=m.gmail,copies=gmCopies(m);
+  var all=S.gm.length===g.tasks.length&&S.gm.every(function(x){return x;});
+  return '<div class="gm"><h3><span class="gm-badge">Gmail</span>'+esc(g.title)+'</h3>'+
+   '<p class="note" style="margin:0">'+(g.own?'Цей лист ти пишеш <b>сам</b>, своїми словами. Саме його оцінює вчитель.':'Тренування: можна копіювати. Виконуй кроки у своїй пошті й став позначки.')+'</p>'+
+   (copies.length?'<div class="copies" id="cps">'+copies.map(function(c,i){return '<button class="copy" data-c="'+i+'">'+esc(c[0])+'</button>';}).join("")+'</div>':'')+
+   (g.own?'<div class="hint"><b style="color:var(--ink)">Вимоги до твого листа</b><ul style="margin:6px 0 0;padding-left:20px">'+g.own.map(function(r){return '<li>'+esc(r)+'</li>';}).join("")+'</ul></div>':'')+
+   '<ul class="tasks" id="tasks">'+g.tasks.map(function(t,i){var on=!!S.gm[i];return '<li><label class="task '+(on?"done":"")+'"><input type="checkbox" data-t="'+i+'" '+(on?"checked":"")+'><span>'+(i+1)+'. '+esc(t)+'</span></label></li>';}).join("")+'</ul>'+
+   '<div class="btnrow"><button class="primary" id="gnext" '+(all?"":"disabled")+'>'+(S.mi===MISSIONS.length-1?"Завершити":"Наступна місія")+'</button>'+
+   '<button class="ghost" id="later">Зроблю пізніше</button></div></div>';
+}
+function copyText(txt,btn){
+  var done=function(){var o=btn.textContent;btn.classList.add("ok");btn.textContent="Скопійовано";setTimeout(function(){btn.classList.remove("ok");btn.textContent=o;},1500);};
+  var fallback=function(){var ta=document.createElement("textarea");ta.value=txt;ta.style.position="fixed";ta.style.top="-1000px";document.body.appendChild(ta);ta.select();var ok=false;try{ok=document.execCommand("copy");}catch(e){}document.body.removeChild(ta);if(ok)done();else btn.textContent="Виділи й скопіюй вручну";};
+  try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,fallback);return;}}catch(e){}
+  fallback();
+}
+function gmCopies(m){var g=m.gmail;return (g.copies||[]).concat(g.letter?letterCopies():[]);}
+function wireGmail(m){
+  var g=m.gmail,copies=gmCopies(m);
+  var cps=$("#cps");if(cps)cps.addEventListener("click",function(e){var b=e.target.closest(".copy");if(b)copyText(copies[+b.getAttribute("data-c")][1],b);});
+  $("#tasks").addEventListener("change",function(e){var i=+e.target.getAttribute("data-t");S.gm[i]=e.target.checked;
+    e.target.parentNode.classList.toggle("done",e.target.checked);
+    var all=g.tasks.every(function(t,k){return S.gm[k];});$("#gnext").disabled=!all;});
+  $("#gnext").addEventListener("click",function(){S.gmDone[S.mi]=true;nextMission();});
+  $("#later").addEventListener("click",function(){S.gmDone[S.mi]=false;nextMission();});
+}
+function nextMission(){
+  var m=MISSIONS[S.mi];
+  if((m.type==="compose"||S.stage==="gmail")&&!(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches)){
+    var f=document.createElement("div");f.className="fly";f.innerHTML=ENV;document.body.appendChild(f);setTimeout(function(){if(f.parentNode)f.parentNode.removeChild(f);},950);
+  }
+  S.fb=null;S.tried=[];S.stage="steps";S.gm=[];
+  if(S.mi===MISSIONS.length-1){S.screen="end";}else{S.mi++;S.si=0;}
+  render();window.scrollTo(0,0);
+}
+
+/* ---------- end ---------- */
+function rank(p){return p===1?"Майстер e-mail":p>=.8?"Досвідчений поштар":p>=.5?"Впевнений користувач":"Поштар-стажер";}
+function renderEnd(){
+  var T=total(),p=S.score/T;
+  var real=MISSIONS.map(function(m,i){if(!m.gmail)return "";var ok=S.gmDone[i]===true;return '<li><span class="st '+(ok?"y":"n")+'">'+(ok?"Виконано":"Не виконано")+'</span><span>'+esc(m.title)+(m.train?' <span class="note">(тренування)</span>':' <b>(оцінюється)</b>')+'</span></li>';}).join("");
+  app.innerHTML=topbar()+'<section class="hero"><div class="air"></div><div class="hero-in">'+
+   '<div class="stack"><div class="label">Практичну роботу завершено</div><h2>'+esc(nm())+', твоє звання: '+rank(p)+'</h2>'+
+   '<p>З першої спроби правильно '+S.score+' відповідей із '+T+'.</p>'+
+   '<div class="result"><div class="post"><div><span>бали</span><b>'+S.score+'/'+T+'</b><span>'+esc(cls())+'</span></div></div></div>'+
+   '<div class="label">Завдання в Gmail</div><ul class="final">'+real+'</ul>'+
+   '<p class="note">Покажи цей екран учителю. Вчитель перевірить твої листи у своїй пошті.</p>'+
+   '<button class="primary" id="again">Пройти знову</button></div>'+
+   '<div class="stack"><div class="label">'+(S.misses.length?"Над чим попрацювати":"Помилок немає")+'</div>'+
+    (S.misses.length?'<ul class="miss">'+S.misses.map(function(x){return '<li><div class="label">'+esc(x.m)+'</div><div>'+esc(x.q)+'</div><div class="ans">'+esc(x.a)+'</div><div>'+esc(x.why)+'</div></li>';}).join("")+'</ul>':'<p>Усі відповіді правильні з першої спроби. Так тримати!</p>')+
+   '</div></div></section>';
+  $("#again").addEventListener("click",function(){var n=S.name,c=S.cls;S=fresh();S.name=n;S.cls=c;S.screen="play";render();});
+}
+function render(){if(S.screen==="start")renderStart();else if(S.screen==="play")renderPlay();else renderEnd();}
+
+function start(data){S=(data&&data.screen)?data:fresh();render();}
+var hot=(window.claude&&window.claude.hot)||null;
+try{if(hot&&hot.snapshot)hot.snapshot(function(){return S;});}catch(e){}
+if(hot&&hot.ready)hot.ready(start);else start((hot&&hot.data)||{});
+})();
+</script>
