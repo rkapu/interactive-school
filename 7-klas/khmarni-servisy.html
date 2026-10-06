@@ -1,0 +1,984 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<title>Інтерактивний довідник «Хмарні сервіси»</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Rubik:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+
+:root{
+  --bg:#e8edf4; --surface:#ffffff; --surface-2:#f3f6fa; --ink:#18202e; --muted:#586377; --line:#d2d9e4;
+  --blue:#2360c4; --teal:#0e8a84; --orange:#d9700c; --purple:#7446d4; --amber:#b58900; --red:#cf3a2c; --pink:#c43d82; --green:#17854a; --indigo:#4148b8;
+  --ok:#17854a; --ok-bg:#e1f4e8; --bad:#b8322a; --bad-bg:#fbe6e3; --warn-bg:#fdf3d7; --focus:#2360c4; --scrim:rgba(16,22,34,.55);
+  --f-display:"Unbounded","Rubik","Segoe UI",Arial,sans-serif; --f-body:"Rubik","Segoe UI",Arial,sans-serif; --f-mono:"IBM Plex Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10141c; --surface:#1a202b; --surface-2:#232b38; --ink:#e8ecf3; --muted:#9ca5b6; --line:#313a4b;
+  --blue:#7ba4f0; --teal:#4cc7bf; --orange:#f3a052; --purple:#ad8ff2; --amber:#e8c14a; --red:#f07568; --pink:#ee82b8; --green:#5ccb8d; --indigo:#9ba1f5;
+  --ok:#5ccb8d; --ok-bg:#16301f; --bad:#f07568; --bad-bg:#3a1d1a; --warn-bg:#3a3014; --focus:#7ba4f0; --scrim:rgba(0,0,0,.65); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10141c; --surface:#1a202b; --surface-2:#232b38; --ink:#e8ecf3; --muted:#9ca5b6; --line:#313a4b;
+  --blue:#7ba4f0; --teal:#4cc7bf; --orange:#f3a052; --purple:#ad8ff2; --amber:#e8c14a; --red:#f07568; --pink:#ee82b8; --green:#5ccb8d; --indigo:#9ba1f5;
+  --ok:#5ccb8d; --ok-bg:#16301f; --bad:#f07568; --bad-bg:#3a1d1a; --warn-bg:#3a3014; --focus:#7ba4f0; --scrim:rgba(0,0,0,.65); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.5}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+button:disabled{cursor:default;opacity:.5}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[contenteditable]:focus-visible,.tile:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+h1,h2,h3{font-family:var(--f-display);margin:0;line-height:1.15;text-wrap:balance}
+.mono{font-family:var(--f-mono)}
+.label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.wrap{max-width:1320px;margin:0 auto;padding-inline:16px;padding-block:20px 40px}
+
+.poster{background:var(--surface);border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+.air{height:12px;background:repeating-linear-gradient(-45deg,var(--red) 0 16px,var(--surface) 16px 24px,var(--blue) 24px 40px,var(--surface) 40px 48px)}
+.head{padding:26px 28px 10px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px}
+.head h1{font-size:clamp(30px,4.6vw,58px);font-weight:800;letter-spacing:-.01em;display:flex;align-items:center;gap:.25em}
+.head h1 svg{width:1em;height:1em;color:var(--blue);flex:none}
+.sub{font-size:clamp(16px,1.8vw,22px);color:var(--blue);font-weight:600;margin-top:6px}
+.tip{display:flex;align-items:center;gap:10px;background:var(--surface-2);border-radius:999px;padding:8px 16px;font-size:15px;color:var(--muted)}
+.tip b{color:var(--ink)}
+.tools{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.theme{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-weight:600;font-size:15px;min-height:44px}
+.theme:hover{border-color:var(--blue)}
+.theme svg{width:20px;height:20px}
+.pulse{width:10px;height:10px;border-radius:50%;background:var(--red);animation:pulse 1.6s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(207,58,44,.55)}100%{box-shadow:0 0 0 12px rgba(207,58,44,0)}}
+
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;padding:18px 28px 28px}
+@media (max-width:1100px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.grid .tile:last-child{grid-column:1/-1;min-height:0}}
+@media (max-width:600px){.grid{grid-template-columns:minmax(0,1fr);padding:16px}.head{padding:20px 16px 6px}}
+.tile{--c:var(--blue);text-align:left;background:var(--surface);border:2px solid var(--c);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:10px;min-height:230px;position:relative;transition:transform .15s,box-shadow .15s}
+.tile:hover{transform:translateY(-3px);box-shadow:0 10px 24px -12px rgba(0,0,0,.35)}
+.tile .top{display:flex;align-items:center;gap:12px}
+.num{width:40px;height:40px;border-radius:50%;background:var(--c);color:var(--surface);display:grid;place-items:center;font-family:var(--f-display);font-size:18px;flex:none}
+.tile h2{font-size:19px;color:var(--c);min-width:0;flex:1}
+.tile ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:3px;font-size:15.5px}
+.tile .more{margin-top:auto;font-weight:600;color:var(--c);font-size:15px;display:flex;align-items:center;gap:6px}
+.tile .more .ar{transition:transform .15s}
+.tile:hover .more .ar{transform:translateX(4px) rotate(45deg)}
+.ico{width:40px;height:40px;color:var(--c);opacity:.85;flex:none;margin-left:auto}
+.ar{display:inline-block;width:.5em;height:.5em;border-top:2.5px solid currentColor;border-right:2.5px solid currentColor;transform:rotate(45deg);margin:0 .4em .08em .25em;vertical-align:middle}
+.ar.l{transform:rotate(-135deg);margin:0 .25em .08em .4em}
+.ic{display:inline-block;width:1.05em;height:1.05em;vertical-align:-.15em;flex:none}
+.tint{position:relative;z-index:0}
+.tint::before{content:"";position:absolute;top:0;right:0;bottom:0;left:0;background:var(--c);opacity:.1;border-radius:inherit;z-index:-1;pointer-events:none}
+.addr .lg{color:var(--blue)} .addr .sym{color:var(--red);font-weight:700} .addr .dm{color:var(--green)}
+
+/* overlay panel */
+.scrim{position:fixed;top:0;right:0;bottom:0;left:0;background:var(--scrim);display:grid;place-items:center;padding:16px;z-index:10}
+.panel{--c:var(--blue);background:var(--surface);border-radius:16px;width:min(1080px,100%);max-height:calc(100% - 8px);display:flex;flex-direction:column;overflow:hidden;border-top:8px solid var(--c)}
+.p-head{display:flex;align-items:center;gap:14px;padding:18px 22px;border-bottom:1px solid var(--line)}
+.p-head h2{font-size:clamp(20px,2.4vw,28px);color:var(--c);flex:1;min-width:0}
+.x{border:0;background:var(--surface-2);border-radius:10px;width:44px;height:44px;flex:none;display:grid;place-items:center}
+.x svg{width:22px;height:22px}
+.p-body{padding:22px;overflow:auto;display:flex;flex-direction:column;gap:18px}
+.p-body > *{flex-shrink:0}
+.p-foot{display:flex;justify-content:space-between;gap:10px;padding:12px 22px;border-top:1px solid var(--line);background:var(--surface-2)}
+.nav{border:1.5px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 14px;font-weight:600;font-size:15px;min-height:44px;text-align:left}
+.nav:hover{border-color:var(--c)}
+@media (max-width:600px){.p-body{padding:16px}.p-head{padding:14px 16px}.p-foot{padding:10px 16px}.nav{font-size:13px;padding:6px 10px}}
+.lead{font-size:18px;margin:0;max-width:75ch}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+.cols.wide{grid-template-columns:minmax(0,3fr) minmax(0,2fr)}
+@media (max-width:820px){.cols,.cols.wide{grid-template-columns:minmax(0,1fr)}}
+.box{background:var(--surface-2);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.box h3{font-size:16px}
+.note{font-size:15px;color:var(--muted);margin:0}
+.btn{border:1.5px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 14px;font-weight:600;font-size:15px;min-height:44px;display:inline-flex;align-items:center;gap:6px}
+.btn:hover:not(:disabled){background:var(--surface-2);border-color:var(--c)}
+.btn.on{background:var(--c);color:var(--surface);border-color:var(--c)}
+.btn svg{width:18px;height:18px;flex:none}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:14px}
+button.chip{min-height:36px}
+button.chip:hover{border-color:var(--c)}
+.rules{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px}
+.verdict{border-radius:10px;padding:12px 14px;font-weight:500}
+.verdict.good{background:var(--ok-bg);color:var(--ok)} .verdict.bad{background:var(--bad-bg);color:var(--bad)} .verdict.idle{background:var(--surface-2);color:var(--muted)} .verdict.warn{background:var(--warn-bg);color:var(--ink)}
+.inp{padding:9px 12px;border-radius:10px;border:2px solid var(--line);background:var(--surface);width:100%;min-height:44px}
+select.inp{width:auto;max-width:100%}
+.hl{background:var(--surface-2)!important;box-shadow:inset 0 0 0 3px var(--c)}
+.ann{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--c);color:var(--surface);font-size:13px;font-weight:700;flex:none}
+.legend{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.legend button{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;border:1.5px solid transparent;background:transparent;border-radius:10px;padding:8px;font-size:15.5px}
+.legend button:hover,.legend button.on{background:var(--surface);border-color:var(--c)}
+table.t{border-collapse:collapse;width:100%;font-size:15px}
+table.t th,table.t td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+table.t th{color:var(--muted);font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.05em}
+.scroll{overflow-x:auto}
+
+/* window mock */
+.win{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;min-width:0}
+.win .bar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 14px;background:var(--surface-2);border-bottom:1px solid var(--line);font-size:14px;font-weight:600;flex-wrap:wrap}
+.icb{border:1px solid var(--line);background:var(--surface);border-radius:10px;width:44px;height:44px;display:inline-grid;place-items:center;flex:none}
+.icb svg{width:20px;height:20px}
+.icb:hover{border-color:var(--c)}
+.icb.on{background:var(--c);color:var(--surface);border-color:var(--c)}
+
+/* 1. cloud */
+.kinds{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:820px){.kinds{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:460px){.kinds{grid-template-columns:minmax(0,1fr)}}
+.kind{background:var(--surface-2);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:6px;font-size:15px}
+.kind svg{width:30px;height:30px;color:var(--c)}
+.kind b{font-size:16px}
+.sort{display:flex;flex-direction:column;gap:8px}
+.srow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;background:var(--surface);border-radius:10px;padding:8px 8px 8px 14px;border:1.5px solid var(--line);font-size:15.5px}
+.srow.good{border-color:var(--ok);background:var(--ok-bg)} .srow.bad{border-color:var(--bad);background:var(--bad-bg)}
+.srow .act{display:flex;gap:6px}
+.srow .res{grid-column:1/-1;font-size:14px;font-weight:600}
+@media (max-width:560px){.srow{grid-template-columns:minmax(0,1fr)}}
+
+/* 2. translator */
+.tabs{display:flex;flex-wrap:wrap;gap:6px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.trp{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:0;align-items:stretch}
+@media (max-width:600px){.trp{grid-template-columns:minmax(0,1fr)}}
+.pane{padding:12px 14px;display:flex;flex-direction:column;gap:8px;min-height:170px;min-width:0}
+.pane + .pane,.pane.r{background:var(--surface-2)}
+.pane .lang{font-weight:600;color:var(--c);font-size:15px}
+.pane .txt{font-size:21px;flex:1;overflow-wrap:anywhere}
+.pane .ctr{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.pane .cnt{margin-left:auto;font-size:13px;color:var(--muted);font-family:var(--f-mono)}
+.swap{display:grid;place-items:center;padding:8px;border-left:1px solid var(--line);border-right:1px solid var(--line)}
+@media (max-width:600px){.swap{border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}}
+.drop{margin:14px;border:2px dashed var(--line);border-radius:12px;padding:22px;text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center}
+.drop svg{width:40px;height:40px;color:var(--c)}
+
+/* 3. google apps */
+.apps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:12px}
+@media (max-width:520px){.apps{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.app{border:1.5px solid transparent;background:transparent;border-radius:12px;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:13.5px;line-height:1.2;text-align:center;min-height:92px}
+.app:hover{background:var(--surface-2);border-color:var(--line)}
+.app.on{border-color:var(--c);background:var(--surface-2)}
+.app.good{border-color:var(--ok);background:var(--ok-bg)} .app.bad{border-color:var(--bad);background:var(--bad-bg)}
+.aic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;color:#fff;background:var(--k)}
+.aic svg{width:24px;height:24px}
+.dots{display:inline-grid;grid-template-columns:repeat(3,4px);gap:2px;vertical-align:middle;margin:0 4px}
+.dots i{width:4px;height:4px;border-radius:50%;background:currentColor}
+.need{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:14px;border-radius:999px;padding:3px 10px}
+.need.y{background:var(--warn-bg)} .need.n{background:var(--ok-bg);color:var(--ok)}
+.q-big{font-size:19px;font-weight:600}
+ol.steps-ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px}
+
+/* 4. drive */
+.drv{display:grid;grid-template-columns:200px minmax(0,1fr);min-height:330px}
+@media (max-width:680px){.drv{grid-template-columns:minmax(0,1fr)}}
+.dside{display:flex;flex-direction:column;gap:4px;padding:10px;background:var(--surface-2);border-right:1px solid var(--line);position:relative}
+.newb{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:10px 16px;font-weight:600;box-shadow:0 2px 6px -3px rgba(0,0,0,.3);margin-bottom:6px;align-self:flex-start;min-height:44px}
+.newb svg{width:20px;height:20px}
+.dnav{display:flex;align-items:center;gap:10px;border:0;background:transparent;border-radius:999px;padding:8px 12px;text-align:left;font-weight:500;min-height:40px}
+.dnav svg{width:18px;height:18px;flex:none}
+.dnav:hover{background:var(--surface)}
+.dnav.on{background:var(--c);color:var(--surface)}
+.meter{margin-top:auto;padding:8px 4px 0;font-size:13px;color:var(--muted)}
+.meter div{height:6px;border-radius:3px;background:var(--line);overflow:hidden;margin-bottom:4px}
+.meter div i{display:block;height:100%;background:var(--c)}
+.menu{position:absolute;z-index:3;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 30px -10px rgba(0,0,0,.4);padding:6px;display:flex;flex-direction:column;min-width:220px}
+.menu button{border:0;background:transparent;text-align:left;padding:9px 12px;border-radius:8px;display:flex;align-items:center;gap:10px;min-height:40px}
+.menu button:hover{background:var(--surface-2)}
+.menu hr{border:0;border-top:1px solid var(--line);margin:4px 0}
+.dmain{padding:10px 14px;min-width:0;display:flex;flex-direction:column;gap:8px;position:relative}
+.dtop{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;min-height:48px}
+.dtop h3{font-size:17px}
+.tbar{display:flex;flex-wrap:wrap;gap:4px;align-items:center;background:var(--surface-2);border-radius:999px;padding:2px 6px;width:100%}
+.tbar .icb{border:0;background:transparent;border-radius:50%}
+.tbar .icb:hover{background:var(--surface)}
+.tbar .cnt{font-weight:600;font-size:14px;margin-right:auto;padding-left:4px}
+.flist{display:flex;flex-direction:column}
+.frow{display:grid;grid-template-columns:minmax(0,1fr) 90px 100px 80px;gap:10px;align-items:center;border:0;border-bottom:1px solid var(--line);background:transparent;text-align:left;padding:8px 8px;font-size:15px;border-radius:0;min-height:44px}
+.frow.h{font-size:13px;color:var(--muted);font-weight:600;min-height:0}
+.frow .nm{display:flex;align-items:center;gap:10px;min-width:0}
+.frow .nm span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+button.frow:hover{background:var(--surface-2)}
+.frow.sel,.ftile.sel{background:var(--surface-2);box-shadow:inset 0 0 0 2px var(--c)}
+@media (max-width:560px){.frow{grid-template-columns:minmax(0,1fr) 80px}.frow .c3,.frow .c4{display:none}}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.ftile{border:1px solid var(--line);background:var(--surface-2);border-radius:12px;padding:8px;text-align:left;display:flex;flex-direction:column;gap:6px;font-size:14px;min-width:0}
+.ftile .th{height:70px;border-radius:8px;background:var(--surface);display:grid;place-items:center}
+.ftile .th svg{width:34px;height:34px}
+.ftile .nm{display:flex;align-items:center;gap:6px;min-width:0}
+.ftile .nm span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fi{display:inline-grid;place-items:center;width:22px;height:22px;flex:none}
+.fi svg{width:20px;height:20px}
+.shared{display:inline-grid;place-items:center;color:var(--muted)}
+.shared svg{width:16px;height:16px}
+.empty{color:var(--muted);font-size:15px;padding:18px 4px}
+
+/* 5. sync */
+.sync{display:grid;grid-template-columns:minmax(0,1fr) 150px minmax(0,1fr);gap:12px;align-items:stretch}
+@media (max-width:760px){.sync{grid-template-columns:minmax(0,1fr)}}
+.side{display:flex;flex-direction:column}
+.side .list{padding:10px;display:flex;flex-direction:column;gap:8px;flex:1}
+.sf{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;background:var(--surface-2);border-radius:10px;padding:8px 10px;font-size:15px;transition:background .3s}
+.sf .nm{overflow-wrap:anywhere}
+.sf small{display:block;color:var(--muted);font-size:13px}
+.sf.fresh{background:var(--ok-bg)}
+.sf .act{display:flex;gap:4px}
+.sf .act .btn{min-height:36px;padding:4px 10px;font-size:13.5px}
+.mid{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;font-size:14px}
+.mid .sic{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);color:var(--muted)}
+.mid .sic svg{width:30px;height:30px}
+.mid.busy .sic{color:var(--c);background:var(--surface)}
+.mid.busy .sic svg{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.mid .st{font-weight:600}
+
+/* 6. office */
+.appwin [data-p]{transition:background .2s,box-shadow .2s}
+.atitle{display:flex;align-items:center;gap:10px;padding:10px 14px;flex-wrap:wrap}
+.alogo{width:34px;height:34px;border-radius:8px;display:grid;place-items:center;color:#fff;background:var(--k);flex:none}
+.alogo svg{width:20px;height:20px}
+.aname{font-size:17px;font-weight:600}
+.astat{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:4px}
+.astat svg{width:16px;height:16px}
+.share-b{margin-left:auto;border:0;border-radius:999px;background:var(--blue);color:var(--surface);font-weight:600;padding:8px 16px;min-height:40px;display:inline-flex;align-items:center;gap:6px}
+.share-b svg{width:16px;height:16px}
+.amenu{display:flex;flex-wrap:wrap;gap:2px;padding:0 10px 6px;font-size:14.5px;position:relative}
+.amenu > button{border:0;background:transparent;padding:4px 8px;border-radius:6px;min-height:32px}
+.amenu > button:hover,.amenu > button.on{background:var(--surface-2)}
+.atools{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin:0 10px 8px;padding:5px 10px;background:var(--surface-2);border-radius:999px;font-size:14px}
+.atools span{padding:2px 7px;border-radius:5px;min-width:24px;text-align:center}
+.atools .sep{width:1px;height:20px;background:var(--line);padding:0;min-width:0}
+.awork{background:var(--surface-2);padding:16px;min-height:190px;display:grid;place-items:start center}
+.page{background:var(--surface);width:min(100%,560px);min-height:160px;padding:18px 22px;border-radius:4px;box-shadow:0 2px 8px -4px rgba(0,0,0,.3);outline-offset:2px}
+.page h4{margin:0 0 6px;font-size:19px}
+.page p{margin:0}
+.sheet{border-collapse:collapse;background:var(--surface);font-size:14px;width:min(100%,560px)}
+.sheet td,.sheet th{border:1px solid var(--line);padding:4px 8px;min-width:60px;height:30px}
+.sheet th{background:var(--surface-2);color:var(--muted);font-weight:500;font-size:12px}
+.slide{background:var(--surface);width:min(100%,520px);aspect-ratio:16/9;border-radius:4px;box-shadow:0 2px 8px -4px rgba(0,0,0,.3);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;padding:16px;text-align:center}
+.slide .t1{font-family:var(--f-display);font-size:clamp(17px,2.4vw,24px);outline-offset:2px}
+.slide .t2{color:var(--muted);outline-offset:2px}
+.hist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:14.5px}
+.hist li{background:var(--surface);border-radius:8px;padding:6px 10px;display:flex;justify-content:space-between;gap:10px}
+
+/* 7. share */
+.dlg{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 40px -18px rgba(0,0,0,.45);padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.dlg h3{font-size:19px;font-family:var(--f-body);font-weight:600}
+.prow{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:10px;align-items:center;font-size:15px}
+.prow .who{min-width:0}
+.prow .who small{display:block;color:var(--muted);overflow-wrap:anywhere}
+.prow.gone .who{text-decoration:line-through;opacity:.6}
+.av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;background:var(--k);flex:none}
+.av svg{width:22px;height:22px}
+.pend{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pend .chip{background:var(--surface-2)}
+.pend .chip button{border:0;background:transparent;padding:0 2px;display:grid;place-items:center;min-height:24px}
+.pend .chip button svg{width:14px;height:14px}
+.chk{display:flex;align-items:center;gap:8px;font-size:15px}
+.chk input{width:20px;height:20px}
+.gen{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.gen .gi{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);flex:none}
+.gen .gi svg{width:20px;height:20px}
+.gen.link .gi{background:var(--ok-bg);color:var(--ok)}
+.dfoot{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center}
+.blue-b{border:0;border-radius:999px;background:var(--blue);color:var(--surface);font-weight:600;padding:8px 20px;min-height:44px}
+.out-b{border:1.5px solid var(--line);border-radius:999px;background:var(--surface);color:var(--blue);font-weight:600;padding:8px 16px;min-height:44px;display:inline-flex;align-items:center;gap:6px}
+.out-b svg{width:18px;height:18px}
+.lv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:640px){.lv{grid-template-columns:minmax(0,1fr)}}
+.lvc{background:var(--surface);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:6px;font-size:14.5px;border:1.5px solid var(--line)}
+.lvc.on{border-color:var(--c)}
+.lvc b{font-size:15.5px}
+.lvc .y{color:var(--ok)} .lvc .n{color:var(--bad)}
+.mailnote{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.mailnote .mb{padding:12px 14px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+
+/* 8. collab */
+.dochead{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.avs{display:flex;margin-left:auto}
+.avs button{border:2px solid var(--surface);margin-left:-6px;padding:0;width:38px;height:38px}
+.avs button:first-child{margin-left:0}
+.doc{padding:18px 22px;font-size:17px;line-height:1.8;min-height:220px}
+.doc h4{font-family:var(--f-display);font-size:19px;margin:0 0 8px}
+.sn{border:0;background:transparent;padding:1px 2px;border-radius:4px;text-align:left;line-height:inherit;font-size:inherit;position:relative}
+.sn:hover{background:var(--surface-2)}
+.sn.sel{background:var(--warn-bg);box-shadow:inset 0 -2px 0 var(--amber)}
+.sn.cm{background:var(--warn-bg)}
+.sn.mk{box-shadow:0 0 0 2px var(--green);background:var(--ok-bg)}
+.caret{display:inline-block;width:2px;height:1.1em;background:var(--green);vertical-align:-.15em;position:relative;animation:blink 1s steps(2) infinite}
+.caret b{position:absolute;bottom:100%;left:0;background:var(--green);color:var(--surface);font-size:11px;padding:0 5px;border-radius:4px 4px 4px 0;line-height:1.5;white-space:nowrap;font-weight:600}
+@keyframes blink{50%{opacity:0}}
+del.sg{color:var(--bad);text-decoration:line-through} ins.sg{color:var(--purple);text-decoration:underline;text-decoration-color:var(--purple)}
+.cmts{display:flex;flex-direction:column;gap:10px}
+.cmt{background:var(--surface);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;border:1.5px solid var(--line);font-size:15px}
+.cmt.done{opacity:.6}
+.cmt .who{display:flex;align-items:center;gap:8px;font-weight:600}
+.cmt .who .av{width:28px;height:28px;font-size:13px}
+.cmt .who small{font-weight:400;color:var(--muted)}
+.cmt .q{color:var(--muted);font-size:14px;border-left:3px solid var(--amber);padding-left:8px}
+.cmt .act{display:flex;gap:6px;flex-wrap:wrap}
+.cmt .act .btn{min-height:38px;padding:5px 12px;font-size:14px}
+
+/* flip cards */
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:760px){.cards{grid-template-columns:minmax(0,1fr)}}
+.card{border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:16px;min-height:130px;text-align:left;display:flex;flex-direction:column;gap:8px}
+.card.open{background:var(--surface-2);border-color:var(--c)}
+.card .q{font-weight:600}
+.card .a{color:var(--ok);font-weight:500}
+.card .hint{margin-top:auto;font-size:13px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.pulse,.caret,.mid.busy .sic svg{animation:none}.tile,.tile .more .ar,.sf,.appwin [data-p]{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <main class="poster">
+    <div class="air"></div>
+    <header class="head">
+      <div>
+        <div class="label">Інформатика · 7 клас</div>
+        <h1><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M7 19h10.5a4.5 4.5 0 0 0 .6-9A6.5 6.5 0 0 0 5.6 9.6 4.8 4.8 0 0 0 7 19z"/></svg>Хмарні сервіси</h1>
+        <div class="sub">Зберігай, створюй і працюй разом онлайн!</div>
+      </div>
+      <div class="tools"><a class="theme" href="../index.html" style="text-decoration:none;color:inherit">На головну</a><div class="tip"><span class="pulse" aria-hidden="true"></span><span><b>Натисни на картку</b>, щоб спробувати</span></div><button class="theme" id="theme" type="button"></button></div>
+    </header>
+    <section class="grid" id="grid"></section>
+  </main>
+</div>
+<div id="overlay"></div>
+
+<script>
+(function(){
+const S=p=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const P={
+ cloud:'<path d="M7 19h10.5a4.5 4.5 0 0 0 .6-9A6.5 6.5 0 0 0 5.6 9.6 4.8 4.8 0 0 0 7 19z"/>',
+ translate:'<path d="M3 5h10M8 3v2M5 5c1 4 4 7 7 8M11 5c-1 4-4 7-7 8"/><path d="M13 21l4-9 4 9M14.5 18h5"/>',
+ apps:'<rect x="3" y="3" width="4" height="4" rx="1"/><rect x="10" y="3" width="4" height="4" rx="1"/><rect x="17" y="3" width="4" height="4" rx="1"/><rect x="3" y="10" width="4" height="4" rx="1"/><rect x="10" y="10" width="4" height="4" rx="1"/><rect x="17" y="10" width="4" height="4" rx="1"/><rect x="3" y="17" width="4" height="4" rx="1"/><rect x="10" y="17" width="4" height="4" rx="1"/><rect x="17" y="17" width="4" height="4" rx="1"/>',
+ drive:'<rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/>',
+ sync:'<path d="M20 11a8 8 0 0 0-14.3-4.9L4 8"/><path d="M4 3v5h5"/><path d="M4 13a8 8 0 0 0 14.3 4.9L20 16"/><path d="M20 21v-5h-5"/>',
+ doc:'<path d="M6 2h8l5 5v15H6z"/><path d="M14 2v5h5M9 13h7M9 17h7"/>',
+ share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4"/>',
+ users:'<circle cx="9" cy="8" r="3.5"/><path d="M2 20a7 7 0 0 1 14 0"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14a5 5 0 0 1 5 5"/>',
+ quiz:'<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/>',
+ folder:'<path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+ sheet:'<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M4 15h16M10 4v16"/>',
+ slides:'<rect x="3" y="5" width="18" height="14" rx="2"/><rect x="7" y="9" width="10" height="6"/>',
+ img:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 17-5-5-9 8"/>',
+ search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
+ mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
+ board:'<rect x="3" y="4" width="18" height="12" rx="1"/><path d="M8 20l4-4 4 4"/>',
+ cam:'<rect x="2" y="6" width="13" height="12" rx="2"/><path d="m15 10 6-3v10l-6-3"/>',
+ person:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+ play:'<rect x="2" y="5" width="20" height="14" rx="4"/><path d="m10 9 5 3-5 3z"/>',
+ pin:'<path d="M12 22s7-7 7-12a7 7 0 0 0-14 0c0 5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/>',
+ cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+ photo:'<path d="M12 12V3a6 6 0 0 1 0 12M12 12h9a6 6 0 0 1-12 0M12 12v9a6 6 0 0 1 0-12M12 12H3a6 6 0 0 1 12 0"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ down:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
+ move:'<path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M10 13h6M13 10l3 3-3 3"/>',
+ trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+ more:'<circle cx="12" cy="5" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="12" cy="19" r="1.2"/>',
+ close:'<path d="M6 6l12 12M18 6 6 18"/>',
+ list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+ tiles:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+ shared:'<circle cx="9" cy="8" r="3.5"/><path d="M2 20a7 7 0 0 1 14 0"/><path d="M19 8v6M16 11h6"/>',
+ computer:'<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',
+ phone:'<rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/>',
+ wifi:'<path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 19.5h.01"/>',
+ nowifi:'<path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 19.5h.01"/><path d="M3 3l18 18"/>',
+ mic:'<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/>',
+ speaker:'<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12"/>',
+ copy:'<rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/>',
+ swap:'<path d="M4 8h14l-4-4M20 16H6l4 4"/>',
+ upload:'<path d="M12 16V5M7 10l5-5 5 5M5 20h14"/>',
+ globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
+ lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+ link:'<path d="M10 14a4 4 0 0 0 6 0l3-3a4 4 0 0 0-6-6l-1 1"/><path d="M14 10a4 4 0 0 0-6 0l-3 3a4 4 0 0 0 6 6l1-1"/>',
+ check:'<path d="M4 12l5 5L20 6"/>',
+ info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/>',
+ comment:'<path d="M4 5h16v11H9l-5 4z"/><path d="M12 8v5M9.5 10.5h5"/>',
+ cat:'<path d="M5 4l3 4h8l3-4v9a7 7 0 0 1-14 0z"/><path d="M9 13h.01M15 13h.01M10.5 16.5 12 17.5l1.5-1"/>'
+};
+const ic=k=>S(P[k]);
+const ICHK='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>';
+const ICRS='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function addr(t){const p=t.split("@");if(p.length<2)return esc(t);return `<span class="lg">${esc(p[0])}</span>`+p.slice(1).map(x=>`<span class="sym">@</span><span class="dm">${esc(x)}</span>`).join("");}
+const AR='<i class="ar"></i>';
+
+/* ---------- topics ---------- */
+const T=[
+ {id:"khmara",c:"--blue",icon:"cloud",title:"Що таке «хмара»",
+  bullets:["Хмарні технології — програми й дані зберігаються на сайтах","Тобі потрібен лише браузер","Переваги й недоліки"],
+  more:"Розсортувати переваги й недоліки", render:renderKhmara},
+ {id:"perekladach",c:"--teal",icon:"translate",title:"Онлайн-перекладачі",
+  bullets:["Google Перекладач, DeepL, Bing, МЕТА","Режими: Текст, Зображення, Документи, Вебсайти","Прослухати, копіювати, поділитися"],
+  more:"Спробувати перекладач", render:renderPereklad},
+ {id:"google",c:"--orange",icon:"apps",title:"Сервіси Google",
+  bullets:["Пошук, Gmail, Диск, Карти, Meet…","Один обліковий запис — для всіх","Кнопка «Додатки Google»"],
+  more:"Вгадати потрібний сервіс", render:renderGoogle},
+ {id:"dysk",c:"--purple",icon:"drive",title:"Google Диск",
+  bullets:["Хмарне сховище: 15 ГБ безкоштовно","Створити, перемістити, перейменувати, копія","Кошик — 30 днів"],
+  more:"Попрацювати з файлами", render:renderDysk},
+ {id:"synkhronizatsiia",c:"--amber",icon:"sync",title:"Синхронізація",
+  bullets:["Остання версія файлів — і на комп'ютері, і в хмарі","Програма «Диск для комп'ютера»","Без Інтернету — чекає"],
+  more:"Подивитися, як це працює", render:renderSync},
+ {id:"onlain-dokumenty",c:"--pink",icon:"doc",title:"Онлайн-документи",
+  bullets:["Google Документи, Таблиці, Презентації","Зберігаються самі, є історія версій","Можна завантажити як .docx, .xlsx, .pptx"],
+  more:"Розглянути вікно додатка", render:renderOffice},
+ {id:"dostup",c:"--red",icon:"share",title:"Спільний доступ",
+  bullets:["Може переглядати · коментувати · редагувати","Доступ людям або всім, хто має посилання","Закрити доступ може лише власник"],
+  more:"Надати доступ до файлу", render:renderDostup},
+ {id:"spilna-robota",c:"--indigo",icon:"users",title:"Спільна робота",
+  bullets:["Видно, хто й де редагує","Коментарі та пропозиції змін","Прийняти або відхилити"],
+  more:"Попрацювати над документом разом", render:renderRobota},
+ {id:"test",c:"--green",icon:"quiz",title:"Перевір себе",
+  bullets:["9 запитань за темою","Подумай — потім переверни картку"],
+  more:"Відкрити картки", render:renderTest}
+];
+
+/* ---------- tile grid ---------- */
+const grid=document.getElementById("grid");
+grid.innerHTML=T.map((t,i)=>`<button class="tile tint" data-i="${i}" style="--c:var(${t.c})" aria-haspopup="dialog">
+  <span class="top"><span class="num">${i+1}</span><h2>${t.title}</h2><span class="ico" aria-hidden="true">${ic(t.icon)}</span></span>
+  <ul>${t.bullets.map(b=>`<li>${b}</li>`).join("")}</ul>
+  <span class="more">${t.more}<i class="ar"></i></span></button>`).join("");
+grid.addEventListener("click",e=>{const b=e.target.closest(".tile");if(b)open(+b.dataset.i);});
+
+/* ---------- overlay ---------- */
+const ov=document.getElementById("overlay");let cur=-1,lastFocus=null;
+function open(i){
+  if(cur<0)lastFocus=document.activeElement;
+  cur=(i+T.length)%T.length;const t=T[cur];
+  ov.innerHTML=`<div class="scrim" id="scrim"><div class="panel" role="dialog" aria-modal="true" aria-labelledby="pt" style="--c:var(${t.c})">
+    <div class="p-head"><span class="num">${cur+1}</span><h2 id="pt">${t.title}</h2><button class="x" id="x" aria-label="Закрити">${ic("close")}</button></div>
+    <div class="p-body" id="pb"></div>
+    <div class="p-foot"><button class="nav" id="prev"><i class="ar l"></i>${T[(cur-1+T.length)%T.length].title}</button><button class="nav" id="next">${T[(cur+1)%T.length].title}<i class="ar"></i></button></div>
+  </div></div>`;
+  t.render(document.getElementById("pb"));
+  document.getElementById("x").onclick=close;
+  document.getElementById("prev").onclick=()=>open(cur-1);
+  document.getElementById("next").onclick=()=>open(cur+1);
+  document.getElementById("scrim").addEventListener("click",e=>{if(e.target.id==="scrim")close();});
+  document.getElementById("x").focus();
+}
+function close(){ov.innerHTML="";cur=-1;if(lastFocus)lastFocus.focus();}
+const typing=t=>/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)||t.isContentEditable;
+document.addEventListener("keydown",e=>{
+  if(cur<0)return;
+  if(e.key==="Escape")close();
+  else if(!typing(e.target)&&e.key==="ArrowRight")open(cur+1);
+  else if(!typing(e.target)&&e.key==="ArrowLeft")open(cur-1);
+});
+
+/* ---------- 1. cloud ---------- */
+const PC=[
+ ["Файли лежать у хмарі — на флешці й диску комп'ютера лишається більше місця",1,"Економія місця на власних носіях."],
+ ["Без Інтернету до файлів у хмарі не дістатися",0,"Хмарним сервісам потрібен постійний доступ до Інтернету."],
+ ["Комп'ютер зламався, а файли не загубилися",1,"Дані захищені від втрати у разі збою пристрою."],
+ ["Власник сервісу може підняти плату, зменшити сховище або вимкнути послугу",0,"Умови користування може змінити власник ресурсу."],
+ ["Відкрити свої файли можна з будь-якого пристрою з будь-якою операційною системою",1,"Доступ до даних і програм звідусіль."],
+ ["Програми оновлюються самі — у тебе завжди остання версія",1,"Автоматичне оновлення програм."],
+ ["Персональні дані користувачів можуть потрапити до чужих людей",0,"Можливий витік персональних даних."],
+ ["Над одним файлом можна працювати разом з однокласниками",1,"Спільне використання файлів."]
+];
+function renderKhmara(el){
+  el.innerHTML=`<p class="lead"><b>Хмарні технології</b> (англ. <i>cloud technologies</i>) — це технології для віддаленого опрацювання та зберігання даних. Програми й файли зберігаються на сайтах, а на твоєму пристрої потрібен лише <b>браузер</b>. Засобами цих технологій створено <b>хмарні сервіси</b>.</p>
+  <div class="kinds">
+   <div class="kind" style="--c:var(--blue)">${ic("doc")}<b>Онлайн-програми</b>текстові редактори, таблиці, презентації, графіка, перекладачі, калькулятори — без встановлення</div>
+   <div class="kind" style="--c:var(--purple)">${ic("drive")}<b>Онлайн-сховища</b>файли, фото й відео доступні з будь-якого комп'ютера з Інтернетом</div>
+   <div class="kind" style="--c:var(--orange)">${ic("person")}<b>Контакти й закладки</b>зберігаються в обліковому записі й доступні на всіх пристроях</div>
+   <div class="kind" style="--c:var(--green)">${ic("pin")}<b>Онлайн-карти</b>визначення місцезнаходження та прокладання маршрутів</div>
+  </div>
+  <div class="box"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h3>Перевага чи недолік? Розсортуй!</h3><span class="chip" id="score">Правильно: 0 з ${PC.length}</span></div>
+   <div class="sort" id="sort">${PC.map((r,i)=>`<div class="srow" data-i="${i}"><span>${r[0]}</span><span class="act"><button class="btn" data-v="1">Перевага</button><button class="btn" data-v="0">Недолік</button></span><span class="res" hidden></span></div>`).join("")}</div>
+  </div>
+  <p class="note">Для деяких хмарних сервісів потрібен обліковий запис (логін і пароль), іншими можна користуватися без реєстрації.</p>`;
+  const done={};
+  el.querySelector("#sort").addEventListener("click",e=>{const b=e.target.closest("[data-v]");if(!b)return;const row=b.closest(".srow"),i=+row.dataset.i,r=PC[i];
+    const ok=+b.dataset.v===r[1];done[i]=ok;
+    row.className="srow "+(ok?"good":"bad");
+    const res=row.querySelector(".res");res.hidden=false;
+    res.innerHTML=(ok?ICHK+" Так! ":ICRS+" Ні, це "+(r[1]?"перевага":"недолік")+". ")+r[2];
+    res.style.color=ok?"var(--ok)":"var(--bad)";
+    row.querySelectorAll("[data-v]").forEach(x=>x.classList.toggle("on",x===b));
+    const n=Object.keys(done).filter(k=>done[k]).length;
+    el.querySelector("#score").textContent=`Правильно: ${n} з ${PC.length}`;});
+}
+
+/* ---------- 2. translator ---------- */
+const PHR=[["хмарне сховище","cloud storage"],["спільний доступ","shared access"],["синхронізація файлів","file synchronization"],["Доброго дня! Надсилаю домашнє завдання.","Good afternoon! I am sending my homework."]];
+const MODES=[
+ {k:"text",n:"Текст",ic:"translate",d:"Текст завдовжки до 5000 символів: набери з клавіатури або встав з Буфера обміну."},
+ {k:"img",n:"Зображення",ic:"img",d:"Текст із зображення в графічному файлі формату",f:["jpg","jpeg","png"]},
+ {k:"doc",n:"Документи",ic:"doc",d:"Текст із документа формату",f:["docx","pdf","pptx","xlsx"]},
+ {k:"web",n:"Вебсайти",ic:"globe",d:"Текст на вебсторінці з указаною URL-адресою. Відкриється та сама сторінка, але вибраною мовою."}
+];
+const TOOLS={mic:["Перекладати голосовий ввід","Для голосового введення тексту з мікрофона."],speak:["Прослухати","Для прослуховування тексту мовою оригіналу або мовою перекладу."],copy:["Копіювати переклад","Для копіювання тексту перекладу в Буфер обміну."],share:["Поділитися перекладом","Для надсилання перекладу іншим користувачам, наприклад електронною поштою."]};
+function renderPereklad(el){
+  let mode="text",ph=0,rev=false;
+  el.innerHTML=`<p class="lead"><b>Онлайн-перекладачі</b> — програми для автоматизованого перекладу текстів з однієї мови іншою. Вони використовують електронні словники та алгоритми, що узгоджують слова за правилами мови перекладу.</p>
+  <div class="cols wide">
+   <div class="win"><div class="bar"><span>Перекладач</span><span class="label mono">translate.google.com</span></div>
+    <div class="tabs" id="tm">${MODES.map(m=>`<button class="btn" data-m="${m.k}">${ic(m.ic)}${m.n}</button>`).join("")}</div>
+    <div id="tb"></div></div>
+   <div class="box"><h3>Що робить ця кнопка?</h3><div class="verdict idle" id="ti" role="status">Натискай кнопки під текстом у перекладачі.</div>
+    <h3>Популярні перекладачі</h3>
+    <ul class="rules"><li><b>Google Перекладач</b> — <span class="mono">translate.google.com</span></li><li><b>DeepL Translate</b> — <span class="mono">deepl.com</span></li><li><b>Microsoft Bing Translator</b> — <span class="mono">bing.com/translator</span></li><li><b>МЕТА Перекладач</b> — <span class="mono">translate.meta.ua</span></li></ul>
+    <p class="note">Google Перекладачем можна користуватися без облікового запису. Програма може помилитися — перечитуй переклад!</p></div>
+  </div>`;
+  const tb=el.querySelector("#tb"),ti=el.querySelector("#ti");
+  const tool=k=>`<button class="icb" data-t="${k}" aria-label="${TOOLS[k][0]}" title="${TOOLS[k][0]}">${ic(k==="speak"?"speaker":k)}</button>`;
+  function draw(){
+    el.querySelectorAll("#tm .btn").forEach(b=>b.classList.toggle("on",b.dataset.m===mode));
+    const m=MODES.filter(x=>x.k===mode)[0];
+    if(mode==="text"){
+      const src=rev?PHR[ph][1]:PHR[ph][0],dst=rev?PHR[ph][0]:PHR[ph][1];
+      const L1=rev?"Англійська":"Українська",L2=rev?"Українська":"Англійська";
+      tb.innerHTML=`<div class="trp"><div class="pane"><span class="lang">${L1}</span><span class="txt">${esc(src)}</span><span class="ctr">${tool("mic")}${tool("speak").replace('data-t="speak"','data-t="speak" data-w="src"')}<span class="cnt">${src.length} / 5000</span></span></div>
+        <div class="swap"><button class="icb" id="sw" aria-label="Поміняти мови місцями" title="Поміняти мови">${ic("swap")}</button></div>
+        <div class="pane r"><span class="lang">${L2}</span><span class="txt">${esc(dst)}</span><span class="ctr">${tool("speak").replace('data-t="speak"','data-t="speak" data-w="dst"')}${tool("copy")}${tool("share")}</span></div></div>
+        <div style="padding:10px 14px;border-top:1px solid var(--line)"><div class="label" style="margin-bottom:6px">Вибери, що перекласти</div><div class="chips" id="ph">${PHR.map((p,i)=>`<button class="chip${i===ph?" on":""}" data-p="${i}" style="${i===ph?"border-color:var(--c);font-weight:600":""}">${esc(p[0])}</button>`).join("")}</div></div>`;
+    } else if(mode==="web"){
+      tb.innerHTML=`<div class="drop">${ic("globe")}<div>${m.d}</div><div style="display:flex;gap:8px;width:100%;max-width:420px"><input class="inp mono" value="cloud.google.com" aria-label="Адреса сайту"><button class="btn on" id="go">Перекласти</button></div><div class="note" id="gr"></div></div>`;
+      tb.querySelector("#go").onclick=()=>{tb.querySelector("#gr").textContent="Перекладач відкриє цю сторінку в новій вкладці вже українською мовою.";};
+    } else {
+      tb.innerHTML=`<div class="drop">${ic("upload")}<div>${m.d}:</div><div class="chips">${m.f.map(f=>`<span class="chip mono">.${f}</span>`).join("")}</div><button class="btn on" id="pick">Вибрати на комп'ютері</button><div class="note" id="gr">Або перетягни файл у це поле.</div></div>`;
+      tb.querySelector("#pick").onclick=()=>{tb.querySelector("#gr").textContent=mode==="img"?"Перекладач розпізнає текст на картинці й покаже переклад поверх зображення. Результат можна завантажити.":"Перекладач перекладе документ і запропонує завантажити перекладений файл.";};
+    }
+    if(mode!=="text")ti.className="verdict idle",ti.textContent=`Режим «${m.n}»: ${m.d}${m.f?" "+m.f.join(", ")+".":""}`;
+  }
+  el.querySelector("#tm").addEventListener("click",e=>{const b=e.target.closest("[data-m]");if(b){mode=b.dataset.m;draw();}});
+  tb.addEventListener("click",e=>{
+    const p=e.target.closest("[data-p]");if(p){ph=+p.dataset.p;draw();return;}
+    if(e.target.closest("#sw")){rev=!rev;draw();ti.className="verdict idle";ti.textContent="Мови помінялися місцями: тепер перекладаємо в зворотному напрямку.";return;}
+    const t=e.target.closest("[data-t]");if(!t)return;const k=t.dataset.t;
+    ti.className="verdict good";ti.innerHTML=`<b>${TOOLS[k][0]}</b><br>${TOOLS[k][1]}`;
+    if(k==="speak"){
+      const isEn=(t.dataset.w==="dst")!==rev;const txt=(t.dataset.w==="dst")?(rev?PHR[ph][0]:PHR[ph][1]):(rev?PHR[ph][1]:PHR[ph][0]);
+      try{const u=new SpeechSynthesisUtterance(txt);u.lang=isEn?"en-US":"uk-UA";window.speechSynthesis.cancel();window.speechSynthesis.speak(u);}catch(err){ti.innerHTML+=`<br><span class="note">На цьому комп'ютері озвучення недоступне.</span>`;}
+    }
+  });
+  draw();
+}
+
+/* ---------- 3. google services ---------- */
+const SERV=[
+ {n:"Google Пошук",i:"search",k:"--blue",d:"Для пошуку відомостей в Інтернеті.",a:0},
+ {n:"Gmail",i:"mail",k:"--red",d:"Для електронного листування.",a:1},
+ {n:"Google Перекладач",i:"translate",k:"--teal",d:"Для перекладу текстів, файлів, вебсайтів з однієї мови іншою.",a:0},
+ {n:"Google Клас",i:"board",k:"--green",d:"Для взаємодії вчителів і учнів під час навчання: завдання, оцінки, оголошення.",a:1},
+ {n:"Google Meet",i:"cam",k:"--teal",d:"Для відеоконференцій, наприклад онлайн-уроків (англ. meet — зустріти).",a:1},
+ {n:"Google Диск",i:"drive",k:"--purple",d:"Для впорядкованого зберігання та спільного використання файлів у хмарному сховищі.",a:1},
+ {n:"Google Контакти",i:"person",k:"--blue",d:"Для зберігання даних про контакти користувача.",a:1},
+ {n:"YouTube",i:"play",k:"--red",d:"Для перегляду, розміщення та редагування відео.",a:0},
+ {n:"Google Карти",i:"pin",k:"--green",d:"Для перегляду онлайн-карт, прокладання маршрутів, позначення та опису місць.",a:0},
+ {n:"Google Календар",i:"cal",k:"--orange",d:"Для позначення та планування подій.",a:1},
+ {n:"Google Фото",i:"photo",k:"--amber",d:"Для зберігання та редагування фотографій.",a:1}
+];
+const SQ=[["Прокласти маршрут від школи до музею",8],["Провести онлайн-урок з відео",4],["Зберегти презентацію, щоб відкрити її вдома",5],["Записати дату олімпіади, щоб не забути",9],["Перекласти англійський сайт українською",2],["Здати домашнє завдання, яке вчитель задав онлайн",3],["Переглянути відеоурок",7],["Надіслати лист учительці",1],["Знайти в Інтернеті висоту Говерли",0],["Зберегти номер і адресу друга",6],["Зберегти фото з екскурсії й обрізати їх",10]];
+function renderGoogle(el){
+  let quiz=false,qi=0,score=0,tried=false,answered=false;
+  el.innerHTML=`<p class="lead">Популярні в Україні хмарні сервіси компанії Google. <b>Один обліковий запис Google</b> дає доступ до всіх цих сервісів.</p>
+  <div class="chips"><button class="btn on" data-mode="0">Дослідити</button><button class="btn" data-mode="1">Вікторина: який сервіс допоможе?</button></div>
+  <div class="cols">
+   <div class="win"><div class="bar"><span>Додатки Google</span><span class="label">google.com</span></div><div class="apps" id="ap">${SERV.map((s,i)=>`<button class="app" data-s="${i}"><span class="aic" style="--k:var(${s.k})">${ic(s.i)}</span>${s.n}</button>`).join("")}</div></div>
+   <div class="box" id="gi"></div>
+  </div>
+  <div class="box"><h3>Як відкрити сервіс Google</h3><ol class="steps-ol">
+   <li>Відкрити в браузері сайт <span class="mono">google.com</span>.</li>
+   <li>Вибрати кнопку <b>Додатки Google</b> <span class="dots" aria-hidden="true">${"<i></i>".repeat(9)}</span> у верхньому правому куті.</li>
+   <li>Вибрати значок потрібного сервісу.</li>
+   <li>Увести дані облікового запису, якщо сервіс цього потребує.</li></ol></div>`;
+  const gi=el.querySelector("#gi"),ap=el.querySelector("#ap");
+  const info=i=>{const s=SERV[i];gi.innerHTML=`<div style="display:flex;align-items:center;gap:12px"><span class="aic" style="--k:var(${s.k})">${ic(s.i)}</span><h3 style="font-size:20px">${s.n}</h3></div><p style="margin:0">${s.d}</p>
+    ${s.a?`<span class="need y">${ic("lock").replace("<svg",'<svg class="ic"')} Потрібен обліковий запис</span>`:`<span class="need n">${ICHK} Можна без облікового запису</span>`}`;};
+  const ask=()=>{tried=false;answered=false;ap.querySelectorAll(".app").forEach(b=>b.className="app");
+    if(qi>=SQ.length){gi.innerHTML=`<div class="label">Готово</div><div class="q-big">Результат: ${score} з ${SQ.length} з першої спроби</div><button class="btn on" id="again">Ще раз</button>`;gi.querySelector("#again").onclick=()=>{qi=0;score=0;ask();};return;}
+    gi.innerHTML=`<div class="label">Завдання ${qi+1} з ${SQ.length}</div><div class="q-big">${SQ[qi][0]}</div><p class="note">Натисни на потрібний сервіс ліворуч.</p><div id="qv" role="status"></div>`;};
+  const setMode=q=>{quiz=q;el.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("on",+b.dataset.mode===+q));ap.querySelectorAll(".app").forEach(b=>b.className="app");
+    if(quiz){qi=0;score=0;ask();}else gi.innerHTML=`<h3>Натисни на значок сервісу</h3><p class="note">Дізнаєшся, для чого він і чи потрібен обліковий запис.</p><p class="note">Без облікового запису можна користуватися, наприклад, Пошуком, Картами, Перекладачем і YouTube.</p>`;};
+  el.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>setMode(b.dataset.mode==="1"));
+  ap.addEventListener("click",e=>{const b=e.target.closest(".app");if(!b)return;const i=+b.dataset.s;
+    if(!quiz){ap.querySelectorAll(".app").forEach(x=>x.classList.toggle("on",x===b));info(i);return;}
+    if(qi>=SQ.length||answered)return;
+    const qv=gi.querySelector("#qv");
+    if(i===SQ[qi][1]){answered=true;b.className="app good";if(!tried)score++;qv.className="verdict good";qv.innerHTML=`${ICHK} Так! ${SERV[i].n}: ${SERV[i].d.toLowerCase()}`;
+      const nb=document.createElement("button");nb.className="btn on";nb.innerHTML="Далі"+AR;nb.onclick=()=>{qi++;ask();};gi.appendChild(nb);nb.focus();
+    } else {tried=true;b.className="app bad";qv.className="verdict bad";qv.innerHTML=`${ICRS} ${SERV[i].n} — ${SERV[i].d.toLowerCase()} Спробуй інший.`;}
+  });
+  setMode(false);
+}
+
+/* ---------- 4. drive ---------- */
+const FT={folder:{l:"Папка",c:"--muted",p:"folder"},doc:{l:"Google Документи",c:"--blue",p:"doc"},sheet:{l:"Google Таблиці",c:"--green",p:"sheet"},slides:{l:"Google Презентації",c:"--amber",p:"slides"},img:{l:"Зображення PNG",c:"--red",p:"img"}};
+const fic=t=>`<span class="fi" style="color:var(${FT[t].c})">${ic(FT[t].p)}</span>`;
+function renderDysk(el){
+  let files=[{n:"Проєкт Карпати",t:"folder",d:"вчора",s:"—",items:3},{n:"Рівні доступу",t:"doc",d:"10:42",s:"2 КБ"},{n:"Рослинні символи України",t:"slides",d:"5 жовт.",s:"1,2 МБ"},{n:"Розклад гуртків",t:"sheet",d:"1 жовт.",s:"8 КБ"},{n:"sonyachna-systema.png",t:"img",d:"28 вер.",s:"640 КБ"}];
+  let trash=[],view="list",sel=-1,sec="my",menu="";
+  el.innerHTML=`<p class="lead"><b>Google Диск</b> — хмарне сховище для впорядкованого зберігання файлів і надання до них доступу іншим. Після реєстрації облікового запису Google ти отримуєш <b>15 ГБ</b> безкоштовно.</p>
+  <div class="win"><div class="bar"><span>Google Диск</span><span class="label">drive.google.com</span></div>
+   <div class="drv"><div class="dside" id="ds"></div><div class="dmain" id="dm"></div></div></div>
+  <div class="verdict idle" id="dst" role="status">Натисни на файл, щоб вибрати його — з'явиться панель інструментів.</div>
+  <div class="cols">
+   <div class="box"><h3>Панель інструментів вибраного об'єкта</h3><div class="scroll"><table class="t"><tr><th>Кнопка</th><th>Для чого</th></tr>
+    <tr><td>Скасувати вибір</td><td>відмовитися від вибору</td></tr><tr><td>Завантажити</td><td>зберегти об'єкт на інший носій</td></tr><tr><td>Перемістити</td><td>перенести в іншу папку</td></tr><tr><td>Перемістити в кошик</td><td>видалити в Кошик</td></tr><tr><td>Додаткові дії</td><td>Відкрити за допомогою, Перейменувати, Зробити копію, Інформація про файл</td></tr></table></div>
+    <p class="note">Ті самі команди є в контекстному меню об'єкта (права кнопка миші).</p></div>
+   <div class="box"><h3>Запам'ятай</h3><ul class="rules"><li><b>Створити</b> — нова папка, завантаження файлу чи папки, новий онлайн-документ.</li><li>Файли можна просто <b>перетягнути</b> з Провідника Windows на сторінку Диска.</li><li>Вигляд: <b>списком</b> (ім'я, власник, дата змін, розмір) або <b>сіткою</b> (з ескізами).</li><li>Видалене лежить у <b>Кошику 30 днів</b>, потім зникає назавжди. До того його можна відновити.</li></ul></div>
+  </div>`;
+  const ds=el.querySelector("#ds"),dm=el.querySelector("#dm"),st=el.querySelector("#dst");
+  const say=(m,k)=>{st.className="verdict "+(k||"good");st.innerHTML=m;};
+  const NAV=[["my","drive","Мій диск"],["shared","shared","Відкриті для мене"],["pc","computer","Комп'ютери"],["trash","trash","Кошик"]];
+  function draw(){
+    ds.innerHTML=`<button class="newb" data-a="create">${ic("plus")}Створити</button>
+     ${menu==="create"?`<div class="menu" style="top:60px;left:10px">
+       <button data-a="newfolder">${fic("folder")}Нова папка</button><hr>
+       <button data-a="upfile">${ic("upload").replace("<svg",'<svg class="ic"')}Завантажити файл</button><button data-a="upfolder">${ic("upload").replace("<svg",'<svg class="ic"')}Завантажити папку</button><hr>
+       <button data-a="new" data-t="doc">${fic("doc")}Google Документи</button><button data-a="new" data-t="sheet">${fic("sheet")}Google Таблиці</button><button data-a="new" data-t="slides">${fic("slides")}Google Презентації</button></div>`:""}
+     ${NAV.map(n=>`<button class="dnav${sec===n[0]?" on":""}" data-a="sec" data-s="${n[0]}">${ic(n[1])}${n[2]}${n[0]==="trash"&&trash.length?` (${trash.length})`:""}</button>`).join("")}
+     <div class="meter"><div><i style="width:13%"></i></div>Використано 1,9 ГБ з 15 ГБ</div>`;
+    let h="";
+    if(sec==="my"){
+      if(sel>=0){
+        h+=`<div class="dtop"><div class="tbar"><button class="icb" data-a="unsel" title="Скасувати вибір" aria-label="Скасувати вибір">${ic("close")}</button><span class="cnt">Вибрано: 1</span>
+          <button class="icb" data-a="download" title="Завантажити" aria-label="Завантажити">${ic("down")}</button>
+          <button class="icb" data-a="move" title="Перемістити" aria-label="Перемістити">${ic("move")}</button>
+          <button class="icb" data-a="del" title="Перемістити в кошик" aria-label="Перемістити в кошик">${ic("trash")}</button>
+          <button class="icb" data-a="more" title="Додаткові дії" aria-label="Додаткові дії">${ic("more")}</button></div></div>
+          ${menu==="more"?`<div class="menu" style="top:56px;right:14px"><button data-a="openw">Відкрити за допомогою</button><button data-a="rename">Перейменувати</button><button data-a="copy">Зробити копію</button><button data-a="info">Інформація про файл</button></div>`:""}`;
+      } else {
+        h+=`<div class="dtop"><h3>Мій диск</h3><span style="display:flex;gap:4px"><button class="icb${view==="list"?" on":""}" data-a="view" data-v="list" title="У вигляді списку" aria-label="У вигляді списку">${ic("list")}</button><button class="icb${view==="grid"?" on":""}" data-a="view" data-v="grid" title="У вигляді сітки" aria-label="У вигляді сітки">${ic("tiles")}</button></span></div>`;
+      }
+      if(!files.length)h+=`<div class="empty">Тут поки порожньо. Натисни «Створити».</div>`;
+      else if(view==="list")h+=`<div class="flist"><div class="frow h"><span>Назва</span><span>Власник</span><span class="c3">Змінено</span><span class="c4">Розмір</span></div>${files.map((f,i)=>`<button class="frow${i===sel?" sel":""}" data-a="pick" data-i="${i}"><span class="nm">${fic(f.t)}<span>${esc(f.n)}</span></span><span>я</span><span class="c3">${f.d}</span><span class="c4">${f.t==="folder"?"файлів: "+f.items:f.s}</span></button>`).join("")}</div>`;
+      else h+=`<div class="fgrid">${files.map((f,i)=>`<button class="ftile${i===sel?" sel":""}" data-a="pick" data-i="${i}"><span class="th" style="color:var(${FT[f.t].c})">${ic(FT[f.t].p)}</span><span class="nm">${fic(f.t)}<span>${esc(f.n)}</span></span></button>`).join("")}</div>`;
+    } else if(sec==="trash"){
+      h+=`<div class="dtop"><h3>Кошик</h3>${trash.length?`<button class="btn" data-a="empty">Очистити кошик</button>`:""}</div><p class="note">Об'єкти в Кошику видаляються назавжди через 30 днів.</p>`;
+      h+=trash.length?`<div class="flist">${trash.map((f,i)=>`<div class="frow" style="grid-template-columns:minmax(0,1fr) auto"><span class="nm">${fic(f.t)}<span>${esc(f.n)}</span></span><span style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn" data-a="restore" data-i="${i}">Відновити</button><button class="btn" data-a="kill" data-i="${i}">Видалити назавжди</button></span></div>`).join("")}</div>`:`<div class="empty">Кошик порожній.</div>`;
+    } else if(sec==="shared"){
+      h+=`<div class="dtop"><h3>Відкриті для мене</h3></div><div class="flist"><div class="frow"><span class="nm">${fic("doc")}<span>Правила гуртка (від Олени Петрівни)</span></span><span>О. П.</span><span class="c3">2 жовт.</span><span class="c4">3 КБ</span></div></div><p class="note">Тут файли й папки, до яких тобі надали доступ інші люди. Детальніше — у темі «Спільний доступ».</p>`;
+    } else {
+      h+=`<div class="dtop"><h3>Комп'ютери</h3></div><div class="flist"><div class="frow"><span class="nm">${ic("computer").replace("<svg",'<svg class="ic"')}<span>Мій ноутбук</span></span><span>я</span><span class="c3">щойно</span><span class="c4">—</span></div></div><p class="note">Тут папки, синхронізовані з комп'ютера програмою «Диск для комп'ютера». Детальніше — у темі «Синхронізація».</p>`;
+    }
+    dm.innerHTML=h;
+  }
+  el.addEventListener("click",e=>{
+    const b=e.target.closest("[data-a]");
+    if(!b){if(menu&&!e.target.closest(".menu")){menu="";draw();}return;}
+    const a=b.dataset.a,f=files[sel];
+    if(a!=="create"&&a!=="more")menu="";
+    if(a==="create"){menu=menu==="create"?"":"create";}
+    else if(a==="more"){menu=menu==="more"?"":"more";}
+    else if(a==="sec"){sec=b.dataset.s;sel=-1;st.className="verdict idle";st.textContent=sec==="my"?"Натисни на файл, щоб вибрати його.":"";if(sec!=="my")st.textContent=NAV.filter(n=>n[0]===sec)[0][2]+" — розділ на лівій бічній панелі.";}
+    else if(a==="view"){view=b.dataset.v;say(view==="list"?"<b>У вигляді списку</b>: значок, ім'я, власник, дата останніх змін, розмір.":"<b>У вигляді сітки</b>: об'єкти показано з ескізами вмісту.","idle");}
+    else if(a==="pick"){sel=+b.dataset.i;say(`Вибрано «${esc(files[sel].n)}». Угорі з'явилася панель інструментів — спробуй її кнопки.`,"idle");}
+    else if(a==="unsel"){sel=-1;say("Вибір скасовано.","idle");}
+    else if(a==="download"){say(`<b>Завантажити</b>: «${esc(f.n)}» ${f.t==="folder"?"буде запаковано в архів .zip і":"буде"} збережено на комп'ютер, у папку «Завантаження».`);}
+    else if(a==="move"){const fi=files.findIndex(x=>x.t==="folder");
+      if(f.t==="folder"||fi<0)say("<b>Перемістити</b>: відкривається вікно вибору папки, куди перенести об'єкт. Зараз немає іншої папки — створи її кнопкою «Створити».","warn");
+      else{const fo=files[fi];fo.items++;files.splice(sel,1);sel=-1;say(`<b>Перемістити</b>: «${esc(f.n)}» тепер у папці «${esc(fo.n)}».`);}}
+    else if(a==="del"){trash.push(f);files.splice(sel,1);sel=-1;say(`«${esc(f.n)}» переміщено в <b>Кошик</b>. Його можна відновити протягом 30 днів.`);}
+    else if(a==="openw"){say(`<b>Відкрити за допомогою</b>: ${f.t==="folder"?"папку відкривають подвійним клацанням.":"«"+esc(f.n)+"» відкриється в онлайн-програмі "+FT[f.t].l+"."}`);}
+    else if(a==="copy"){files.splice(sel+1,0,{n:"Копія "+f.n,t:f.t,d:"щойно",s:f.s,items:f.items});sel=sel+1;say(`<b>Зробити копію</b>: з'явився файл «Копія ${esc(f.n)}».`);}
+    else if(a==="info"){say(`<b>Інформація про файл</b>: «${esc(f.n)}» · тип: ${FT[f.t].l} · власник: я · змінено: ${f.d} · розмір: ${f.t==="folder"?"файлів: "+f.items:f.s}`,"idle");}
+    else if(a==="rename"){st.className="verdict idle";st.innerHTML=`<b>Перейменувати</b>: <span style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap"><input class="inp" id="rn" value="${esc(f.n)}" style="flex:1;min-width:160px" aria-label="Нове ім'я"><button class="btn on" data-a="renok">OK</button></span>`;draw();const rn=st.querySelector("#rn");rn.focus();rn.select();rn.onkeydown=ev=>{if(ev.key==="Enter")st.querySelector("[data-a=renok]").click();};return;}
+    else if(a==="renok"){const v=st.querySelector("#rn").value.trim();if(v&&f){f.n=v;f.d="щойно";say(`Перейменовано на «${esc(v)}».`);}}
+    else if(a==="newfolder"){files.unshift({n:"Нова папка",t:"folder",d:"щойно",s:"—",items:0});sel=0;say("Створено «Нова папка». Перейменуй її через «Додаткові дії».");}
+    else if(a==="new"){const nm={doc:"Документ без назви",sheet:"Таблиця без назви",slides:"Презентація без назви"}[b.dataset.t];files.unshift({n:nm,t:b.dataset.t,d:"щойно",s:"1 КБ"});sel=0;say(`Створено «${nm}». У справжньому Диску він одразу відкриється в ${FT[b.dataset.t].l}.`);}
+    else if(a==="upfile"||a==="upfolder"){files.push({n:a==="upfile"?"zavdannia-1.5.5.pptx":"Завдання 1.5.6",t:a==="upfile"?"slides":"folder",d:"щойно",s:"2,4 МБ",items:2});say(`Відкривається вікно вибору ${a==="upfile"?"файлу":"папки"} на комп'ютері. Після вибору ${a==="upfile"?"файл":"папка"} з'являється на Диску. Можна й просто перетягнути з Провідника.`);}
+    else if(a==="restore"){const x=trash.splice(+b.dataset.i,1)[0];files.push(x);say(`«${esc(x.n)}» відновлено в попередньому розташуванні.`);}
+    else if(a==="kill"){const x=trash.splice(+b.dataset.i,1)[0];say(`«${esc(x.n)}» видалено назавжди. Відновити вже не можна!`,"bad");}
+    else if(a==="empty"){trash=[];say("Кошик очищено. Усі об'єкти з нього видалено назавжди.","bad");}
+    draw();
+  });
+  draw();
+}
+
+/* ---------- 5. sync ---------- */
+function renderSync(el){
+  let online=true,busy=false,dirty="",nf=1,msg="Зміни щось у файлах на комп'ютері — і подивись, що станеться в хмарі.";
+  let pc=[{n:"tvir-pro-osin.docx",v:1},{n:"foto-ekskursiia.jpg",v:1},{n:"proiekt-karpaty.pptx",v:1}];
+  let cl=pc.map(f=>({n:f.n,v:f.v}));
+  el.innerHTML=`<p class="lead"><b>Синхронізація файлів</b> — процес відстеження змін файлів у двох або більше місцях їх зберігання та автоматичного оновлення до останньої версії. Хмарне сховище стає «віртуальною флешкою», яку не треба носити з собою.</p>
+  <div class="sync" id="sy"></div>
+  <div class="verdict idle" id="sm" role="status"></div>
+  <div class="cols">
+   <div class="box"><h3>Як налаштувати</h3><ol class="steps-ol"><li>На сторінці Google Диска в меню кнопки <b>Налаштування</b> вибрати <b>Завантажити Диск для комп'ютера</b>.</li><li>Встановити програму <b>Диск для комп'ютера</b>.</li><li>Вибрати папки на комп'ютері, які синхронізуватимуться.</li></ol><p class="note">У хмарі ці папки видно в розділі <b>Комп'ютери</b> на лівій панелі Диска.</p></div>
+   <div class="box"><h3>Зверни увагу</h3><ul class="rules"><li>Синхронізуються не лише файли, а й <b>закладки</b> браузера, <b>контакти</b> та інші дані облікового запису Google.</li><li>Видалення теж синхронізується: стер файл на комп'ютері — він зникне й з хмари (але ще 30 днів буде в Кошику).</li><li>Без Інтернету можна працювати далі — зміни надішлються, щойно з'явиться зв'язок.</li></ul></div>
+  </div>`;
+  const sy=el.querySelector("#sy"),sm=el.querySelector("#sm");
+  const row=(f,side)=>`<div class="sf${f.fresh?" fresh":""}">${fic(f.n.indexOf(".jpg")>0?"img":f.n.indexOf(".pptx")>0?"slides":"doc")}<span class="nm mono" style="font-size:14px">${esc(f.n)}<small style="font-family:var(--f-body)">версія ${f.v}</small></span>
+    <span class="act">${side==="pc"?`<button class="btn" data-a="edit" data-n="${esc(f.n)}">Змінити</button><button class="btn" data-a="rm" data-n="${esc(f.n)}" aria-label="Видалити ${esc(f.n)}">${ic("trash")}</button>`:(online?`<button class="btn" data-a="cedit" data-n="${esc(f.n)}" title="Змінити з телефона">${ic("phone")}Змінити</button>`:"")}</span></div>`;
+  function draw(){
+    sy.innerHTML=`<div class="win side"><div class="bar"><span style="display:flex;gap:8px;align-items:center">${ic("computer").replace("<svg",'<svg class="ic"')}Комп'ютер · папка «Школа»</span></div><div class="list">${pc.map(f=>row(f,"pc")).join("")||'<div class="empty">Папка порожня</div>'}<button class="btn" data-a="add" style="align-self:flex-start">${ic("plus")}Додати файл</button></div></div>
+     <div class="mid${busy?" busy":""}"><span class="sic">${ic("sync")}</span><span class="st">${busy?"Синхронізація…":dirty?"Очікує Інтернету":"Усе синхронізовано"}</span>
+      <button class="btn${online?"":" on"}" data-a="net" style="--c:var(--red)">${ic(online?"wifi":"nowifi")}${online?"Інтернет є":"Немає Інтернету"}</button><span class="note" style="font-size:13px">натисни, щоб ${online?"вимкнути":"увімкнути"}</span></div>
+     <div class="win side"><div class="bar"><span style="display:flex;gap:8px;align-items:center">${ic("cloud").replace("<svg",'<svg class="ic"')}Google Диск · Комп'ютери</span></div><div class="list">${cl.map(f=>row(f,"cl")).join("")||'<div class="empty">Папка порожня</div>'}${online?"":'<p class="note">Комп\'ютер не бачить хмару, поки немає зв\'язку.</p>'}</div></div>`;
+    sm.className="verdict "+(dirty&&!online?"warn":"idle");sm.innerHTML=msg;
+  }
+  const clearFresh=()=>{pc.forEach(f=>f.fresh=false);cl.forEach(f=>f.fresh=false);};
+  function trySync(){
+    if(!online||busy||!dirty)return;
+    busy=true;draw();
+    setTimeout(()=>{if(!el.isConnected)return;
+      const from=dirty==="pc"?pc:cl,old=dirty==="pc"?cl:pc;
+      const copy=from.map(f=>{const o=old.filter(x=>x.n===f.n)[0];return{n:f.n,v:f.v,fresh:!o||o.v!==f.v};});
+      if(dirty==="pc"){cl=copy;msg=`${ICHK} Синхронізовано: у хмарі тепер ті самі файли й ті самі версії, що й на комп'ютері.`;}
+      else{pc=copy;msg=`${ICHK} Синхронізовано: зміна з телефона з'явилася і на комп'ютері.`;}
+      dirty="";busy=false;draw();},1200);
+  }
+  sy.addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(!b||busy)return;const a=b.dataset.a,n=b.dataset.n;
+    clearFresh();
+    if(a==="net"){online=!online;msg=online?"Інтернет з'явився.":"Інтернету немає. Працюй далі на комп'ютері — зміни збережуться й чекатимуть.";draw();trySync();return;}
+    if(a==="cedit"){const f=cl.filter(x=>x.n===n)[0];f.v++;f.fresh=true;dirty="cl";msg=`Файл «${esc(n)}» змінено з телефона прямо в хмарі (версія ${f.v}).`;}
+    else{
+      if(a==="edit"){const f=pc.filter(x=>x.n===n)[0];f.v++;f.fresh=true;msg=`Файл «${esc(n)}» змінено на комп'ютері (версія ${f.v}).`;}
+      else if(a==="rm"){pc=pc.filter(x=>x.n!==n);msg=`Файл «${esc(n)}» видалено на комп'ютері. Що станеться в хмарі?`;}
+      else if(a==="add"){const nm="novyi-fail-"+(nf++)+".docx";pc.push({n:nm,v:1,fresh:true});msg=`На комп'ютері з'явився файл «${nm}».`;}
+      dirty="pc";
+      if(!online)msg+=" Немає Інтернету — зміни чекають на синхронізацію.";
+    }
+    draw();trySync();});
+  draw();
+}
+
+/* ---------- 6. office apps ---------- */
+const APPS={
+ docs:{n:"Google Документи",k:"--blue",i:"doc",file:"Рівні доступу",menu:["Файл","Змінити","Вигляд","Вставити","Формат","Інструменти"],fmt:[["Microsoft Word","docx"],["PDF-документ","pdf"],["Звичайний текст","txt"]],ms:"Microsoft Word"},
+ sheets:{n:"Google Таблиці",k:"--green",i:"sheet",file:"Розклад гуртків",menu:["Файл","Змінити","Вигляд","Вставити","Формат","Дані"],fmt:[["Microsoft Excel","xlsx"],["PDF-документ","pdf"],["Значення, розділені комами","csv"]],ms:"Microsoft Excel"},
+ slides:{n:"Google Презентації",k:"--amber",i:"slides",file:"Рослинні символи України",menu:["Файл","Змінити","Вигляд","Вставити","Формат","Слайд"],fmt:[["Microsoft PowerPoint","pptx"],["PDF-документ","pdf"],["Зображення PNG (слайд)","png"]],ms:"Microsoft PowerPoint"}
+};
+const PARTS=[["title","Рядок заголовка","значок програми та ім'я файлу"],["menu","Рядок меню","Файл, Змінити, Вигляд, Вставити, Формат…"],["tools","Панель інструментів","кнопки, схожі на кнопки в Microsoft Office"],["work","Робоча область","тут вводять дані та вставляють об'єкти"]];
+function renderOffice(el){
+  let app="docs",part="",fmenu=false,hist=[],saveT=null;
+  el.innerHTML=`<p class="lead"><b>Офісні онлайн-додатки</b> — хмарні сервіси для створення та опрацювання онлайн-документів. Працюють у браузері, а документи зберігаються на Google Диску.</p>
+  <div class="chips" id="as">${Object.keys(APPS).map(k=>`<button class="btn" data-app="${k}">${ic(APPS[k].i)}${APPS[k].n}</button>`).join("")}</div>
+  <div class="cols wide">
+   <div class="win appwin" id="aw"></div>
+   <div class="box"><h3>Частини вікна</h3><p class="note">Натисни, щоб побачити на малюнку.</p><ul class="legend" id="lg">${PARTS.map((p,i)=>`<li><button data-part="${p[0]}"><span class="ann">${i+1}</span><span><b>${p[1]}</b> — ${p[2]}</span></button></li>`).join("")}</ul>
+    <h3>Історія версій</h3><ul class="hist" id="hs"></ul><p class="note" id="hn">Напиши щось у робочій області — документ збережеться сам.</p></div>
+  </div>
+  <div class="cols">
+   <div class="box"><h3>Особливості онлайн-документів</h3><ul class="rules"><li>За замовчуванням зберігаються на <b>Google Диску</b>.</li><li>Зберігаються <b>автоматично</b> після кожної зміни — навіть якщо комп'ютер «зависне», робота не пропаде.</li><li>Є <b>історія змін</b>: можна повернутися до попередньої версії.</li><li>Можна дати іншим доступ на <b>перегляд, коментування або редагування</b>.</li></ul></div>
+   <div class="box"><h3>Як створити</h3><ul class="rules"><li><b>Додатки Google</b> <span class="dots" aria-hidden="true">${"<i></i>".repeat(9)}</span> <i class="ar"></i>значок додатка<i class="ar"></i><b>Створити</b>.</li><li>Або на Google Диску: <b>Створити</b><i class="ar"></i>Google Документи / Таблиці / Презентації.</li></ul>
+    <p class="note">Файли Word, Excel, PowerPoint, завантажені на Диск, теж можна відкрити й редагувати в онлайн-додатках. А зберегти онлайн-документ у форматі Office: <b>Файл<i class="ar"></i>Завантажити</b> — спробуй у меню «Файл».</p></div>
+  </div>`;
+  const aw=el.querySelector("#aw");
+  const pad=n=>(n<10?"0":"")+n;
+  function work(a){
+    if(a==="docs")return `<div class="page" contenteditable="true" spellcheck="false" aria-label="Текст документа"><h4>Рівні доступу</h4><p>Може переглядати — лише читати.</p><p>Може коментувати — читати й залишати коментарі.</p><p>Може редагувати — змінювати вміст.</p></div>`;
+    if(a==="sheets"){const rows=[["Гурток","День","Час"],["Робототехніка","Пн","15:00"],["Шахи","Ср","14:30"],["Хор","Пт","15:30"]];
+      return `<div class="scroll" style="width:100%;display:grid;place-items:center"><table class="sheet"><tr><th></th><th>A</th><th>B</th><th>C</th></tr>${rows.map((r,i)=>`<tr><th>${i+1}</th>${r.map(c=>`<td contenteditable="true" spellcheck="false"${i===0?' style="font-weight:600"':""}>${c}</td>`).join("")}</tr>`).join("")}</table></div>`;}
+    return `<div class="slide"><div class="t1" contenteditable="true" spellcheck="false">Рослинні символи України</div><div class="t2" contenteditable="true" spellcheck="false">Софія Бондар, 7-А</div></div>`;
+  }
+  function draw(){
+    const A=APPS[app];
+    el.querySelectorAll("#as .btn").forEach(b=>b.classList.toggle("on",b.dataset.app===app));
+    aw.style.setProperty("--c",`var(${A.k})`);
+    aw.innerHTML=`<div class="atitle" data-p="title"><span class="alogo" style="--k:var(${A.k})">${ic(A.i)}</span><span class="aname">${A.file}</span><span class="astat" id="ast">${ic("cloud")}Усі зміни збережено на Диску</span><button class="share-b" type="button" title="Поділитися">${ic("lock")}Поділитися</button></div>
+     <div class="amenu" data-p="menu">${A.menu.map((m,i)=>`<button type="button"${i===0?' data-a="file"':""} class="${i===0&&fmenu?"on":""}">${m}</button>`).join("")}
+      ${fmenu?`<div class="menu" style="top:34px;left:10px"><div class="label" style="padding:6px 12px">Файл<i class="ar"></i>Завантажити</div>${A.fmt.map(f=>`<button data-fmt="${f[1]}">${f[0]} <span class="mono" style="color:var(--muted)">(.${f[1]})</span></button>`).join("")}</div>`:""}</div>
+     <div class="atools" data-p="tools" aria-hidden="true"><span>${ic("swap").replace("<svg",'<svg class="ic"')}</span><span class="sep"></span><span>100%</span><span class="sep"></span><span>Arial</span><span>11</span><span class="sep"></span><span><b>B</b></span><span><i>I</i></span><span style="text-decoration:underline">U</span><span class="sep"></span><span>${ic("link").replace("<svg",'<svg class="ic"')}</span><span>${ic("img").replace("<svg",'<svg class="ic"')}</span></div>
+     <div class="awork" data-p="work">${work(app)}</div>`;
+    if(part){const p=aw.querySelector(`[data-p="${part}"]`);if(p)p.classList.add("hl");}
+    el.querySelectorAll("#lg button").forEach(b=>b.classList.toggle("on",b.dataset.part===part));
+    el.querySelector("#hs").innerHTML=hist.slice(-5).reverse().map(h=>`<li><span>${h.t} — Софія Бондар</span><span class="note">${h.a}</span></li>`).join("");
+  }
+  el.querySelector("#as").addEventListener("click",e=>{const b=e.target.closest("[data-app]");if(b){app=b.dataset.app;fmenu=false;draw();}});
+  el.querySelector("#lg").addEventListener("click",e=>{const b=e.target.closest("[data-part]");if(!b)return;part=part===b.dataset.part?"":b.dataset.part;
+    aw.querySelectorAll("[data-p]").forEach(x=>x.classList.toggle("hl",x.dataset.p===part));
+    el.querySelectorAll("#lg button").forEach(x=>x.classList.toggle("on",x.dataset.part===part));});
+  aw.addEventListener("click",e=>{
+    if(e.target.closest("[data-a=file]")){fmenu=!fmenu;draw();return;}
+    const f=e.target.closest("[data-fmt]");
+    if(f){fmenu=false;draw();el.querySelector("#hn").innerHTML=`${ICHK} Файл «${APPS[app].file}.${f.dataset.fmt}» збережено на комп'ютер. Його можна відкрити в ${APPS[app].ms}.`;return;}
+    if(e.target.closest(".share-b")){el.querySelector("#hn").innerHTML="Кнопка <b>Поділитися</b> відкриває вікно надання доступу — дивись тему «Спільний доступ».";return;}
+    if(fmenu&&!e.target.closest(".menu")){fmenu=false;draw();}
+  });
+  aw.addEventListener("input",()=>{
+    const s=aw.querySelector("#ast");s.innerHTML=ic("sync")+"Збереження…";
+    clearTimeout(saveT);saveT=setTimeout(()=>{if(!el.isConnected)return;
+      const d=new Date(),t=`Сьогодні, ${pad(d.getHours())}:${pad(d.getMinutes())}`,last=hist[hist.length-1];
+      if(last&&last.t===t&&last.app===app)last.n++;else hist.push({t:t,app:app,n:1});
+      hist[hist.length-1].a=APPS[app].file;
+      s.innerHTML=ic("cloud")+"Усі зміни збережено на Диску";
+      el.querySelector("#hs").innerHTML=hist.slice(-5).reverse().map(h=>`<li><span>${h.t} — Софія Бондар</span><span class="note">${h.a}</span></li>`).join("");
+      el.querySelector("#hn").textContent="Збережено автоматично — кнопки «Зберегти» тут немає. У меню Файл є «Історія версій», щоб повернути попередній варіант.";
+    },700);
+  });
+  draw();
+}
+
+/* ---------- 7. sharing ---------- */
+const LV={view:"Може переглядати",comment:"Може коментувати",edit:"Може редагувати"};
+const SCONT=[{n:"Олена Петрівна",e:"olena.petrivna@example.com",k:"--orange"},{n:"Марко Ткачук",e:"marko.tkachuk@example.com",k:"--green"},{n:"Максим Лисенко",e:"max.lysenko@example.com",k:"--purple"},{n:"Група 7-А клас",e:"7a-klas@example.com",k:"--teal",g:1}];
+function renderDostup(el){
+  let people=[{n:"Софія Бондар (ти)",e:"sofia.bondar@example.com",k:"--blue",lvl:"owner"}],pend=[],plvl="edit",notify=true,gen="restricted",glvl="view",dirty=false,sent=null,note="";
+  el.innerHTML=`<p class="lead">Власник файлу чи папки на Google Диску може надати <b>спільний доступ</b> іншим людям. Спробуй: поділися документом «Рівні доступу» з учителькою або класом.</p>
+  <div class="cols wide"><div class="dlg" id="dl"></div><div style="display:flex;flex-direction:column;gap:14px;min-width:0" id="rs"></div></div>
+  <div class="box"><h3>Рівні доступу</h3><div class="lv" id="lv"></div></div>
+  <div class="cols">
+   <div class="box"><h3>Як надати доступ</h3><ol class="steps-ol"><li>Вибрати об'єкт на Google Диску.</li><li>Кнопка <b>Надати доступ</b> (або контекстне меню: Надати доступ<i class="ar"></i>Поділитися).</li><li>У поле <b>Додайте користувачів і групи</b> ввести адресу або групу контактів.</li><li>Вибрати рівень доступу.</li><li>Залишити позначку <b>Сповістити</b> і написати <b>Повідомлення</b>: до чого й навіщо доступ.</li><li>Натиснути <b>Надіслати</b>.</li></ol><p class="note">В онлайн-додатках для цього є кнопка <b>Поділитися</b>.</p></div>
+   <div class="box"><h3>Запам'ятай</h3><ul class="rules"><li>Доступ до <b>папки</b> = такий самий доступ до <b>всіх файлів</b> у ній.</li><li>Отримувач знайде файл у листі (кнопка <b>Відкрити</b>) або на своєму Диску в розділі <b>Відкриті для мене</b>.</li><li>Закрити доступ може <b>тільки власник</b>: у списку біля адреси <b>Закрити доступ</b><i class="ar"></i><b>Зберегти</b>.</li><li>Посилання для всіх вимикають командою <b>Обмежений доступ</b>.</li><li>Не давай «Усім, хто має посилання» права редагувати — хтось може зіпсувати або стерти твою роботу.</li></ul></div>
+  </div>`;
+  const dl=el.querySelector("#dl"),rs=el.querySelector("#rs");
+  const av=p=>`<span class="av" style="--k:var(${p.k})">${p.g?ic("users"):esc(p.n.charAt(0))}</span>`;
+  const lvlSel=(v,attr,extra)=>`<select class="inp" ${attr}>${Object.keys(LV).map(k=>`<option value="${k}"${k===v?" selected":""}>${LV[k]}</option>`).join("")}${extra||""}</select>`;
+  function drawLv(){const hi=pend.length?plvl:"";el.querySelector("#lv").innerHTML=[
+     ["view","Може переглядати",[1,0,0]],["comment","Може коментувати",[1,1,0]],["edit","Може редагувати",[1,1,1]]].map(r=>`<div class="lvc${hi===r[0]?" on":""}"><b>${r[1]}</b>${["читати вміст","залишати коментарі (нотатки до фрагментів)","змінювати вміст"].map((t,i)=>`<span class="${r[2][i]?"y":"n"}">${r[2][i]?ICHK:ICRS} ${t}</span>`).join("")}</div>`).join("");}
+  function draw(){
+    const q=(dl.querySelector("#qi")||{}).value||"";
+    const sugg=SCONT.filter(c=>!people.some(p=>p.e===c.e)&&!pend.some(p=>p.e===c.e)&&(!q||(c.n+" "+c.e).toLowerCase().indexOf(q.toLowerCase())>=0));
+    dl.innerHTML=`<h3>Поділіться файлом «Рівні доступу»</h3>
+     <div style="display:flex;gap:8px"><input class="inp" id="qi" placeholder="Додайте користувачів і групи" value="${esc(q)}" autocomplete="off" spellcheck="false" aria-label="Додайте користувачів і групи"><button class="btn" id="qa">Додати</button></div>
+     ${sugg.length?`<div class="chips">${sugg.map(c=>`<button class="chip" data-add="${c.e}">${esc(c.n)} · <span class="mono addr" style="font-size:12.5px">${addr(c.e)}</span></button>`).join("")}</div>`:""}
+     <div class="verdict bad" id="qe" hidden></div>
+     ${pend.length?`<div class="pend">${pend.map((p,i)=>`<span class="chip">${esc(p.n)}<button data-unpend="${i}" aria-label="Прибрати">${ic("close")}</button></span>`).join("")}${lvlSel(plvl,'id="pl" aria-label="Рівень доступу"')}</div>
+      <label class="chk"><input type="checkbox" id="nt"${notify?" checked":""}> Сповістити</label>
+      <textarea class="inp" id="msg" rows="2" placeholder="Повідомлення" aria-label="Повідомлення">${esc(note)}</textarea>
+      <div class="dfoot"><span></span><span style="display:flex;gap:8px"><button class="out-b" id="cancel">Скасувати</button><button class="blue-b" id="send">Надіслати</button></span></div>`:`
+      <div class="label">Люди з доступом</div>
+      ${people.map((p,i)=>`<div class="prow${p.gone?" gone":""}">${av(p)}<span class="who">${esc(p.n)}<small class="mono">${esc(p.e)}</small></span>${p.lvl==="owner"?'<span class="note">Власник</span>':lvlSel(p.gone?"":p.lvl,`data-pl="${i}" aria-label="Доступ для ${esc(p.n)}"`,`<option value="remove"${p.gone?" selected":""}>Закрити доступ</option>`)}</div>`).join("")}
+      <div class="label">Загальний доступ</div>
+      <div class="gen${gen==="link"?" link":""}"><span class="gi">${ic(gen==="link"?"globe":"lock")}</span><span style="flex:1;min-width:180px"><select class="inp" id="gs" aria-label="Загальний доступ"><option value="restricted"${gen==="restricted"?" selected":""}>Обмежений доступ</option><option value="link"${gen==="link"?" selected":""}>Усі, хто має посилання</option></select>
+       <div class="note" style="margin-top:4px">${gen==="link"?"Будь-хто в Інтернеті, хто має посилання, отримає доступ.":"Відкрити можуть лише додані люди."}</div></span>${gen==="link"?lvlSel(glvl,'id="gl" aria-label="Рівень доступу за посиланням"'):""}</div>
+      ${gen==="link"&&glvl==="edit"?`<div class="verdict warn">Обережно! Будь-хто з посиланням зможе змінити або стерти вміст. Краще вибрати «Може переглядати».</div>`:""}
+      <div class="dfoot"><button class="out-b" id="cp">${ic("link")}Копіювати посилання</button><button class="blue-b" id="done">${dirty?"Зберегти":"Готово"}</button></div>`}`;
+    drawLv();
+  }
+  function drawRs(){
+    const shared=people.filter(p=>!p.gone).length>1||gen==="link";
+    rs.innerHTML=`<div class="win"><div class="bar"><span>Мій диск</span></div><div class="flist" style="padding:6px 10px"><div class="frow" style="grid-template-columns:minmax(0,1fr) auto"><span class="nm">${fic("doc")}<span>Рівні доступу</span>${shared?`<span class="shared" title="У спільному доступі">${ic("shared")}</span>`:""}</span><span class="note">${shared?"У спільному доступі":"Тільки я"}</span></div></div></div>
+     ${sent?`<div class="mailnote"><div class="win" style="border:0;border-radius:0"><div class="bar"><span>Скринька: ${esc(sent.who)}</span><span class="label">Вхідні</span></div></div><div class="mb"><b>Софія Бондар надала вам доступ до документа</b>
+       <span class="note">Від: <span class="mono addr">${addr("sofia.bondar@example.com")}</span></span>${sent.msg?`<span style="background:var(--surface-2);border-radius:8px;padding:8px 10px">${esc(sent.msg)}</span>`:""}
+       <span class="chip" style="align-self:flex-start">${fic("doc")}Рівні доступу</span><span class="note">Рівень: ${LV[sent.lvl]}</span><button class="blue-b" style="align-self:flex-start" type="button" id="op">Відкрити</button></div></div>`:`<div class="verdict idle">${sent===false?"Позначку «Сповістити» знято — лист не надіслано. Людині доведеться самій шукати файл у розділі «Відкриті для мене».":"Тут з'явиться лист, який отримає людина, коли ти надаси доступ."}</div>`}
+     <div class="verdict idle" id="rsm" role="status" hidden></div>`;
+  }
+  const rsMsg=(m,k)=>{const r=rs.querySelector("#rsm");r.hidden=false;r.className="verdict "+(k||"good");r.innerHTML=m;};
+  function addAddr(v){
+    v=v.trim();const c=SCONT.filter(x=>x.e===v||x.n===v)[0];
+    if(c){pend.push(c);dl.querySelector("#qi").value="";draw();return;}
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){const qe=dl.querySelector("#qe");qe.hidden=false;qe.textContent="Це не схоже на адресу електронної пошти. Перевір: логін, символ @, адреса сервісу.";return;}
+    if(people.some(p=>p.e===v)||pend.some(p=>p.e===v))return;
+    pend.push({n:v.split("@")[0],e:v,k:"--pink"});dl.querySelector("#qi").value="";draw();
+  }
+  dl.addEventListener("click",e=>{const t=e.target;
+    const ad=t.closest("[data-add]");if(ad){addAddr(ad.dataset.add);return;}
+    const up=t.closest("[data-unpend]");if(up){pend.splice(+up.dataset.unpend,1);draw();return;}
+    if(t.closest("#qa")){addAddr(dl.querySelector("#qi").value);return;}
+    if(t.closest("#cancel")){pend=[];note="";draw();return;}
+    if(t.closest("#send")){note=dl.querySelector("#msg").value;
+      pend.forEach(p=>people.push({n:p.n,e:p.e,k:p.k,g:p.g,lvl:plvl}));
+      sent=notify?{who:pend.map(p=>p.n).join(", "),msg:note,lvl:plvl}:false;pend=[];note="";draw();drawRs();
+      rsMsg(`${ICHK} Доступ надано. Біля файлу на Диску з'явився значок <b>У спільному доступі</b>.`);return;}
+    if(t.closest("#cp")){rsMsg(gen==="link"?`${ICHK} Посилання скопійовано в Буфер обміну. Встав його в лист або повідомлення.`:"Посилання скопійовано, але відкрити його зможуть лише додані люди: загальний доступ — <b>Обмежений</b>.",gen==="link"?"good":"warn");return;}
+    if(t.closest("#done")){if(dirty){const n=people.filter(p=>p.gone).map(p=>p.n);people=people.filter(p=>!p.gone);dirty=false;draw();drawRs();rsMsg(`Доступ закрито: ${esc(n.join(", "))}.`,"idle");}else rsMsg("Вікно закрито. Зміни рівнів доступу вже збережено.","idle");}
+  });
+  dl.addEventListener("keydown",e=>{if(e.target.id==="qi"&&e.key==="Enter"){e.preventDefault();addAddr(e.target.value);}});
+  dl.addEventListener("input",e=>{if(e.target.id==="qi"){const pos=e.target.selectionStart;draw();const q=dl.querySelector("#qi");q.focus();try{q.setSelectionRange(pos,pos);}catch(err){}}else if(e.target.id==="msg")note=e.target.value;});
+  dl.addEventListener("change",e=>{const t=e.target;
+    if(t.id==="pl"){plvl=t.value;drawLv();}
+    else if(t.id==="nt")notify=t.checked;
+    else if(t.id==="gs"){gen=t.value;draw();drawRs();rsMsg(gen==="link"?"Тепер файл відкриє будь-хто, хто має посилання. Натисни «Копіювати посилання».":"Посилання для всіх вимкнено: <b>Обмежений доступ</b>.","idle");}
+    else if(t.id==="gl"){glvl=t.value;draw();}
+    else if(t.dataset.pl){const p=people[+t.dataset.pl];if(t.value==="remove"){p.gone=true;dirty=true;}else{p.gone=false;p.lvl=t.value;dirty=people.some(x=>x.gone);}draw();if(p.gone)rsMsg("Щоб закрити доступ, натисни <b>Зберегти</b>.","warn");}
+  });
+  rs.addEventListener("click",e=>{if(e.target.closest("#op"))rsMsg(`Отримувач відкриє документ у Google Документах із рівнем «${LV[sent.lvl]}». Також файл з'явиться в його розділі «Відкриті для мене».`,"idle");});
+  draw();drawRs();
+}
+
+/* ---------- 8. collaboration ---------- */
+function renderRobota(el){
+  const SN=["Калина — символ краси, любові та рідного дому.","Верба росте біля води.","Барвінок — символ вічного життя.","Соняшник — символ сонця й тепла."];
+  let sel=-1,sug="open",marko=0,mTimer=null,added=" Він зеленіє навіть узимку.";
+  let cm=[{who:"Олена Петрівна",k:"--orange",role:"може коментувати",s:0,t:"Додай, будь ласка, фото калини.",done:false}];
+  el.innerHTML=`<p class="lead">Коли кілька людей мають доступ до файлу, вони можуть працювати з ним <b>одночасно</b> або в різний час. Це документ групового проєкту. Ти — власниця файлу.</p>
+  <div class="cols wide">
+   <div class="win"><div class="dochead"><span class="alogo" style="--k:var(--blue)">${ic("doc")}</span><b>Рослинні символи України</b>
+     <span class="avs" id="avs"><button class="av" style="--k:var(--blue)" data-who="me" title="Софія Бондар (ти)">С</button><button class="av" style="--k:var(--green)" data-who="m" title="Марко Ткачук">М</button><button class="av" style="--k:var(--purple)" data-who="anon" title="Анонімний користувач">${ic("cat")}</button></span></div>
+     <div class="doc" id="doc"></div></div>
+   <div class="box"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap"><h3>Коментарі</h3><span class="note">Історія коментарів</span></div>
+    <div class="cmts" id="cm"></div>
+    <div id="add"></div></div>
+  </div>
+  <div class="verdict idle" id="rm" role="status">Натисни на кружечки з літерами вгорі — дізнаєшся, хто зараз працює з файлом.</div>
+  <div class="cols">
+   <div class="box"><h3>Хто працює з файлом</h3><ul class="rules"><li>Угорі праворуч — <b>піктограми</b> всіх, хто зараз відкрив файл.</li><li>Кожен має <b>свій колір</b>: рамка цього кольору показує, де людина редагує.</li><li>Хто відкрив файл за <b>загальним посиланням</b>, показаний <b>твариною</b> замість літери.</li></ul><button class="btn" id="mk" style="align-self:flex-start">Подивитись, як редагує Марко</button></div>
+   <div class="box"><h3>Коментарі та пропозиції</h3><ul class="rules"><li>Вибери фрагмент і натисни <b>Додати коментар</b>.</li><li>Хто має доступ <b>«Може коментувати»</b>, не змінює текст: його спроби редагування стають <b>пропозиціями</b>.</li><li>Власник може <b>прийняти</b> або <b>відхилити</b> пропозицію, а обговорення — позначити як <b>вирішене</b>.</li></ul></div>
+  </div>`;
+  const doc=el.querySelector("#doc"),cmEl=el.querySelector("#cm"),add=el.querySelector("#add"),rm=el.querySelector("#rm");
+  const say=(m,k)=>{rm.className="verdict "+(k||"idle");rm.innerHTML=m;};
+  function drawDoc(){
+    const parts=SN.map((s,i)=>{
+      let txt=esc(s);
+      if(i===1){if(sug==="open")txt=`Верба росте біля <del class="sg">води</del><ins class="sg">річок і ставків</ins>.`;else if(sug==="ok")txt="Верба росте біля річок і ставків.";}
+      if(i===2&&marko>0)txt=esc(s+added.slice(0,marko));
+      const commented=cm.some(c=>c.s===i&&!c.done);
+      return `<button class="sn${i===sel?" sel":""}${commented&&i!==sel?" cm":""}${i===2&&marko>0?" mk":""}" data-s="${i}">${txt}</button>${i===2&&marko>0?'<span class="caret"><b>Марко Ткачук</b></span>':""}`;});
+    doc.innerHTML=`<h4>Рослинні символи України</h4>${parts.join(" ")}`;
+  }
+  function drawCm(){
+    let h="";
+    if(sug==="open")h+=`<div class="cmt"><span class="who"><span class="av" style="--k:var(--purple)">М</span><span>Максим Лисенко<br><small>може коментувати · пропозиція</small></span></span><span class="q">Замінити «води» на «річок і ставків»</span><span class="act"><button class="btn on" data-sg="ok">${ICHK} Прийняти пропозицію</button><button class="btn" data-sg="no">${ICRS} Відхилити пропозицію</button></span></div>`;
+    h+=cm.map((c,i)=>`<div class="cmt${c.done?" done":""}"><span class="who"><span class="av" style="--k:var(${c.k})">${esc(c.who.charAt(0))}</span><span>${esc(c.who)}<br><small>${c.role}</small></span></span><span class="q">${esc(SN[c.s])}</span><span>${esc(c.t)}</span>${c.done?'<span class="note">Позначено як вирішене</span>':`<span class="act"><button class="btn" data-done="${i}">${ICHK} Вирішено</button></span>`}</div>`).join("");
+    cmEl.innerHTML=h;
+    add.innerHTML=sel<0?`<p class="note">Натисни на речення в документі, щоб прокоментувати його.</p>`:`<label class="note" for="ct">Коментар до: «${esc(SN[sel])}»</label><textarea class="inp" id="ct" rows="2" placeholder="Напиши коментар"></textarea><span style="display:flex;gap:8px"><button class="btn on" id="ca">${ic("comment")}Додати коментар</button><button class="btn" id="cc">Скасувати</button></span>`;
+  }
+  const drawAll=()=>{drawDoc();drawCm();};
+  doc.addEventListener("click",e=>{const b=e.target.closest("[data-s]");if(!b)return;sel=+b.dataset.s;drawAll();const ct=add.querySelector("#ct");if(ct)ct.focus();});
+  add.addEventListener("click",e=>{
+    if(e.target.closest("#cc")){sel=-1;drawAll();return;}
+    if(e.target.closest("#ca")){const v=add.querySelector("#ct").value.trim();if(!v){add.querySelector("#ct").focus();return;}
+      cm.push({who:"Софія Бондар (ти)",k:"--blue",role:"власниця",s:sel,t:v,done:false});sel=-1;drawAll();say(`${ICHK} Коментар додано. Його бачать усі, хто має доступ до файлу, і можуть відповісти.`,"good");}
+  });
+  cmEl.addEventListener("click",e=>{
+    const s=e.target.closest("[data-sg]");if(s){sug=s.dataset.sg;drawAll();say(sug==="ok"?`${ICHK} Пропозицію прийнято — текст змінився.`:"Пропозицію відхилено — текст лишився без змін.",sug==="ok"?"good":"idle");return;}
+    const d=e.target.closest("[data-done]");if(d){cm[+d.dataset.done].done=true;drawAll();say("Обговорення позначено як вирішене.","good");}
+  });
+  const WHO={me:"<b>С — це ти</b> (Софія Бондар), власниця файлу. Твій колір — синій.",m:"<b>М — Марко Ткачук</b>, має доступ «Може редагувати». Його колір — зелений: зеленою рамкою позначено місце, де він друкує.",anon:"<b>Тварина</b> — хтось відкрив файл за загальним посиланням («Усі, хто має посилання»). Ім'я невідоме, тому замість літери — зображення тварини."};
+  el.querySelector("#avs").addEventListener("click",e=>{const b=e.target.closest("[data-who]");if(b)say(WHO[b.dataset.who]);});
+  el.querySelector("#mk").onclick=()=>{clearInterval(mTimer);marko=0;say(WHO.m);
+    const reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if(reduce){marko=added.length;drawDoc();return;}
+    mTimer=setInterval(()=>{if(!el.isConnected){clearInterval(mTimer);return;}marko++;drawDoc();if(marko>=added.length)clearInterval(mTimer);},90);};
+  drawAll();
+}
+
+/* ---------- 9. quiz ---------- */
+const QA=[
+ ["Що таке хмарні технології?","Технології для віддаленого опрацювання та зберігання даних: програми й файли — на сайтах, а в тебе лише браузер."],
+ ["Назви дві переваги й один недолік хмарних сервісів.","Переваги: доступ з будь-якого пристрою, файли не губляться при збої, автооновлення, спільна робота. Недолік: потрібен Інтернет (або зміна умов, витік даних)."],
+ ["Які режими є в Google Перекладачі?","Текст (до 5000 символів), Зображення, Документи, Вебсайти."],
+ ["Скільки місця на Google Диску дають безкоштовно?","15 ГБ — одразу після реєстрації облікового запису Google."],
+ ["Скільки часу файли лежать у Кошику Google Диска?","30 днів. Потім вони видаляються назавжди, а до того їх можна відновити."],
+ ["Що таке синхронізація файлів?","Відстеження змін файлів у кількох місцях зберігання й автоматичне оновлення до останньої версії."],
+ ["Як зберегти Google Документ у форматі Word?",`Файл${AR}Завантажити${AR}Microsoft Word (.docx).`],
+ ["Які є рівні доступу до файлів?","Може переглядати, Може коментувати, Може редагувати."],
+ ["Хто може закрити спільний доступ до файлу?","Тільки власник файлу або папки."]
+];
+function renderTest(el){
+  el.innerHTML=`<p class="lead">Спочатку відповідай усно, потім натисни на картку, щоб перевірити.</p>
+  <div class="cards">${QA.map((q,i)=>`<button class="card" data-i="${i}" aria-expanded="false"><span class="label">Запитання ${i+1}</span><span class="q">${q[0]}</span><span class="a" hidden>${q[1]}</span><span class="hint">Натисни, щоб побачити відповідь</span></button>`).join("")}</div>
+  <div class="chips"><button class="btn" id="all">Показати всі відповіді</button><button class="btn" id="hide">Сховати всі</button></div>`;
+  const set=(c,o)=>{c.classList.toggle("open",o);c.querySelector(".a").hidden=!o;c.querySelector(".hint").hidden=o;c.setAttribute("aria-expanded",o);};
+  el.querySelectorAll(".card").forEach(c=>c.onclick=()=>set(c,!c.classList.contains("open")));
+  el.querySelector("#all").onclick=()=>el.querySelectorAll(".card").forEach(c=>set(c,true));
+  el.querySelector("#hide").onclick=()=>el.querySelectorAll(".card").forEach(c=>set(c,false));
+}
+
+/* theme switch */
+(function(){
+  var root=document.documentElement,btn=document.getElementById("theme");
+  var SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+  var MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+  function current(){var t=root.getAttribute("data-theme");if(t==="dark"||t==="light")return t;return (window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";}
+  function paint(){var d=current()==="dark";btn.innerHTML=(d?SUN:MOON)+"<span>"+(d?"Світла тема":"Темна тема")+"</span>";btn.setAttribute("aria-label",d?"Увімкнути світлу тему":"Увімкнути темну тему");}
+  try{var saved=localStorage.getItem("interactive-school-theme");if(saved==="dark"||saved==="light")root.setAttribute("data-theme",saved);}catch(e){}
+  btn.onclick=function(){var next=current()==="dark"?"light":"dark";root.setAttribute("data-theme",next);try{localStorage.setItem("interactive-school-theme",next);}catch(e){}paint();};
+  paint();
+})();
+
+/* deep link: #dostup opens that topic */
+const h=location.hash.slice(1);const hi=T.findIndex(t=>t.id===h);if(hi>=0)open(hi);
+})();
+</script>
+</body>
+</html>
