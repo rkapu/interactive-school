@@ -76,7 +76,8 @@ footer{padding:0 28px 22px;font-size:13px;color:var(--muted)}
     <main id="list"></main>
   </div>
 </div>
-<script src="pages.js"></script>
+<!-- pages.js щоразу з новою адресою, щоб браузер не показував старий список із кешу -->
+<script>document.write('<script src="pages.js?v='+Date.now()+'"><\/script>');</script>
 <script>
 (function(){
   var TYPES={
