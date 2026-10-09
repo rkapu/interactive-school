@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+<title>Хмарна місія</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Rubik:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: mission brief on the left, a mock Google window on the right, answers below. Airmail stripe is the one bold element. */
+:root{
+  --bg:#e9edf3; --surface:#ffffff; --surface-2:#f4f6fa; --ink:#1b2231; --muted:#5a6477; --line:#d3d9e3;
+  --red:#cf3a2c; --blue:#1d4ea3; --ok:#18804a; --ok-bg:#e3f4ea; --bad:#b8322a; --bad-bg:#fbe7e5; --focus:#1d4ea3;
+  --f-display:"Unbounded","Rubik",system-ui,sans-serif; --f-body:"Rubik",system-ui,-apple-system,"Segoe UI",sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11151d; --surface:#1a202c; --surface-2:#222a38; --ink:#e7ebf2; --muted:#9aa3b4; --line:#2e3748;
+  --red:#ee6b5d; --blue:#7aa2ee; --ok:#52c688; --ok-bg:#16301f; --bad:#f0776a; --bad-bg:#3a1c1a; --focus:#7aa2ee; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11151d; --surface:#1a202c; --surface-2:#222a38; --ink:#e7ebf2; --muted:#9aa3b4; --line:#2e3748;
+  --red:#ee6b5d; --blue:#7aa2ee; --ok:#52c688; --ok-bg:#16301f; --bad:#f0776a; --bad-bg:#3a1c1a; --focus:#7aa2ee; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5}
+.wrap{max-width:1080px;margin:0 auto;padding-inline:16px;padding-block:20px 48px;display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.15}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.mono{font-family:var(--f-mono)}
+.ar{display:inline-block;width:.45em;height:.45em;border-top:2.5px solid currentColor;border-right:2.5px solid currentColor;transform:rotate(45deg);margin:0 .4em .08em .2em;vertical-align:middle}
+.label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+
+/* top bar */
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px}
+.brand h1{font-size:20px}
+.home{margin-left:8px;font-size:14px;color:var(--muted);border:1.5px solid var(--line);border-radius:999px;padding:4px 12px;text-decoration:none}
+.home:hover{color:var(--ink);border-color:var(--blue)}
+.themebtn{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:999px;padding:4px 12px}
+.themebtn:hover{border-color:var(--blue)}
+.themebtn svg{width:16px;height:16px}
+.barright{display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px}
+.linkout{font-family:var(--f-mono);font-size:13px}
+.at{display:inline-grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--red);color:#fff;font-family:var(--f-mono);font-weight:600;font-size:20px}
+.track{display:flex;gap:6px;flex-wrap:wrap}
+.pip{width:30px;height:22px;border-radius:3px;border:1.5px solid var(--line);background:var(--surface);position:relative;font-size:11px;display:grid;place-items:center;color:var(--muted);font-variant-numeric:tabular-nums}
+.pip.done{border-color:var(--ok);color:var(--ok)}
+.pip.now{border-color:var(--blue);color:var(--blue);font-weight:600}
+.score{font-family:var(--f-display);font-size:15px;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* game grid */
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:20px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.brief{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden}
+.brief h2{font-size:22px}
+.brief p{margin:0}
+.stamp{position:absolute;top:14px;right:14px;width:62px;height:72px;border:2px dashed var(--red);border-radius:4px;display:grid;place-items:center;text-align:center;color:var(--red);font-family:var(--f-display);font-size:11px;line-height:1.2;transform:rotate(6deg)}
+.stamp b{display:block;font-size:22px}
+.brief .kind{padding-right:78px}
+.hint{background:var(--surface-2);border-radius:6px;padding:10px 12px;font-size:14px;color:var(--muted)}
+.hint .mono{color:var(--ink)}
+
+/* mail window */
+.win{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column}
+.air{height:10px;background:repeating-linear-gradient(-45deg,var(--red) 0 14px,var(--surface) 14px 22px,var(--blue) 22px 36px,var(--surface) 36px 44px)}
+.win-head{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--surface-2);font-weight:600;font-size:14px}
+.row{display:grid;grid-template-columns:90px minmax(0,1fr);gap:10px;align-items:baseline;padding:10px 16px;border-bottom:1px solid var(--line);min-height:44px}
+.row .k{color:var(--muted);font-size:14px}
+.row .v{min-width:0;overflow-wrap:anywhere}
+.row.active{background:var(--surface-2);box-shadow:inset 3px 0 0 var(--blue)}
+.ph{color:var(--muted);font-style:italic}
+.bodyrow{padding:16px;min-height:110px;border-bottom:1px solid var(--line);white-space:pre-wrap;overflow-wrap:anywhere}
+.bodyrow.active{background:var(--surface-2);box-shadow:inset 3px 0 0 var(--blue)}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:2px 10px;font-size:14px}
+.addr .lg{color:var(--blue)} .addr .sym{color:var(--red);font-weight:600} .addr .dm{color:var(--ok)}
+.log{padding:12px 16px;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.log li{margin:0}
+.log ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.folders{display:grid;grid-template-columns:170px minmax(0,1fr);min-height:220px}
+@media (max-width:520px){.folders{grid-template-columns:minmax(0,1fr)}}
+.side{border-right:1px solid var(--line);padding:10px;display:flex;flex-direction:column;gap:4px;background:var(--surface-2)}
+.side div{padding:6px 10px;border-radius:6px;font-size:14px}
+.side .hl{background:var(--ok-bg);color:var(--ok);font-weight:600}
+.fold-main{padding:16px;display:flex;flex-direction:column;gap:8px;font-size:14px}
+
+/* answer panel */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.q{font-weight:600;font-size:17px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{text-align:left;background:var(--surface-2);border:1.5px solid var(--line);border-radius:8px;padding:10px 14px;transition:border-color .15s,transform .1s}
+.opt:hover:not(:disabled){border-color:var(--blue)}
+.opt:active:not(:disabled){transform:scale(.99)}
+.opt:disabled{cursor:not-allowed;opacity:.55;text-decoration:line-through}
+.opt.right{border-color:var(--ok);background:var(--ok-bg);opacity:1;text-decoration:none}
+.fb{border-radius:8px;padding:10px 14px;font-size:15px}
+.fb.good{background:var(--ok-bg);color:var(--ok)}
+.fb.bad{background:var(--bad-bg);color:var(--bad)}
+.fb b{display:block}
+.shake{animation:shake .35s}
+@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.primary{align-self:flex-start;background:var(--blue);color:#fff;border:0;border-radius:8px;padding:12px 22px;font-weight:600;font-size:16px}
+[data-theme="dark"] .primary{color:#0f1420}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .primary{color:#0f1420}}
+.primary:hover{filter:brightness(1.08)}
+
+/* flying envelope */
+.fly{position:fixed;left:50%;top:55%;font-size:44px;pointer-events:none;animation:fly .9s ease-in forwards;z-index:5}
+@keyframes fly{0%{transform:translate(-50%,0) rotate(0);opacity:1}100%{transform:translate(40vw,-60vh) rotate(-25deg);opacity:0}}
+
+/* source text + slide list */
+.src{padding:14px 16px;display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line)}
+.src p{margin:0;font-size:15px}
+.slides{padding:12px 16px;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line)}
+.sl{display:flex;flex-direction:column;gap:6px}
+.sli{display:grid;grid-template-columns:24px minmax(0,1fr);gap:8px;align-items:center;font-size:14px}
+.sli > span:last-child{border:1.5px solid var(--line);border-radius:4px;padding:6px 10px;background:var(--surface-2);overflow-wrap:anywhere}
+.sli small{display:block;color:var(--muted);font-size:12px}
+.sli.me > span:last-child{border-color:var(--ok);background:var(--ok-bg);color:var(--ok);font-weight:600}
+.sn{color:var(--muted);font-size:13px;text-align:right}
+/* start + end */
+.hero{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.hero-in{padding:28px 24px;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:28px}
+@media (max-width:760px){.hero-in{grid-template-columns:minmax(0,1fr)}}
+.hero h2{font-size:clamp(28px,5vw,44px);font-weight:800}
+.hero p{margin:0;max-width:60ch;color:var(--muted)}
+.form{display:flex;flex-direction:column;gap:8px}
+.form input{font:inherit;padding:10px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--surface-2);color:var(--ink);max-width:320px;width:100%}
+.mlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.mlist li{display:grid;grid-template-columns:32px minmax(0,1fr);gap:10px;align-items:center;font-size:15px;padding:8px 10px;border-radius:6px;background:var(--surface-2)}
+.mlist .n{font-family:var(--f-display);color:var(--red);font-size:14px}
+.stack{display:flex;flex-direction:column;gap:16px}
+.post{width:150px;height:150px;border-radius:50%;border:3px solid var(--red);color:var(--red);display:grid;place-items:center;text-align:center;transform:rotate(-8deg);font-family:var(--f-display);flex:none}
+.post b{font-size:34px;display:block;font-variant-numeric:tabular-nums}
+.post span{font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.result{display:flex;flex-wrap:wrap;gap:24px;align-items:center}
+.miss{display:flex;flex-direction:column;gap:10px;margin:0;padding:0;list-style:none}
+.miss li{background:var(--surface-2);border-radius:8px;padding:10px 14px;font-size:14px}
+.miss .ans{color:var(--ok);font-weight:600}
+.note{font-size:14px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.shake,.fly{animation:none}.fly{display:none}}
+
+/* gmail stage */
+.gm{background:var(--surface);border:2px solid var(--red);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.gm h3{font-size:18px;display:flex;align-items:center;gap:10px}
+.gm-badge{display:inline-flex;align-items:center;gap:6px;background:var(--red);color:#fff;border-radius:999px;padding:3px 10px;font-family:var(--f-body);font-size:12px;letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+.tasks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.task{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border-radius:8px;background:var(--surface-2);cursor:pointer;border:1.5px solid transparent}
+.task input{width:22px;height:22px;margin:1px 0 0;flex:none;cursor:pointer}
+.task.done{border-color:var(--ok);background:var(--ok-bg)}
+.task.done span{color:var(--ok)}
+.copies{display:flex;flex-wrap:wrap;gap:8px}
+.copy{border:1.5px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 12px;font-weight:600;font-size:14px}
+.copy:hover{border-color:var(--blue)}
+.copy.ok{border-color:var(--ok);color:var(--ok)}
+.btnrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.ghost{background:transparent;border:0;color:var(--muted);text-decoration:underline;font-size:14px;padding:8px}
+.primary:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.cfg{background:var(--surface-2);border-radius:8px;padding:10px 14px}
+.cfg summary{cursor:pointer;font-weight:600;font-size:14px;color:var(--muted)}
+.cfg .form{margin-top:10px}
+.final{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.final li{display:flex;gap:10px;align-items:center;padding:8px 12px;border-radius:8px;background:var(--surface-2);font-size:15px}
+.final .st{font-weight:600;min-width:92px}
+.final .y{color:var(--ok)} .final .n{color:var(--bad)}
+</style>
+
+<div class="wrap" id="app"></div>
+
+<script>
+/* ===== НАЛАШТУВАННЯ ДЛЯ ВЧИТЕЛЯ =====
+   Змініть ці значення один раз (відкрийте файл у Блокноті), і вони будуть на всіх комп'ютерах.
+   Також їх можна змінити на стартовому екрані гри в розділі «Налаштування для вчителя». */
+var CONFIG = {
+  teacherName: "Олена Петрівна",           // як звертатися до вчителя
+  teacherGreeting: "Олено Петрівно",       // звертання в повідомленні (кличний відмінок)
+  teacherEmail: "olena.petrivna@example.com",   // адреса вчителя
+  className: "7-А"
+};
+(function(){
+var CHK='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>';
+var CLOUD_PATH='<path d="M7 19h10.5a4.5 4.5 0 0 0 .6-9A6.5 6.5 0 0 0 5.6 9.6 4.8 4.8 0 0 0 7 19z"/>';
+var CLOUD='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round">'+CLOUD_PATH+'</svg>';
+var FLY='<svg width="60" height="60" viewBox="0 0 24 24" fill="#ffffff" stroke="#1d4ea3" stroke-width="1.6" stroke-linejoin="round">'+CLOUD_PATH+'</svg>';
+var arw=function(h){return h.replace(/ -&gt; /g,'<i class="ar"></i>');};
+var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});};
+
+/* текст для перекладу — один на весь клас */
+var SOURCE_TITLE="Why Hobbies Are Good for You";
+var SOURCE_TEXT="A hobby is something you do in your free time just because you enjoy it. Some people draw or play the guitar. Others play football, read books, cook or build robots. Hobbies help us relax after school and forget about stress. They also teach us new skills: patience, creativity and teamwork. When you share a hobby with other people, you can make new friends. Scientists say that people with hobbies are often happier and healthier. So find something you love and give it a little time every week!";
+
+/* світла/темна тема — спільна з рештою сайту (той самий ключ, що й на головній) */
+var ROOT=document.documentElement;
+try{var th=localStorage.getItem("interactive-school-theme");if(th==="dark"||th==="light")ROOT.setAttribute("data-theme",th);}catch(e){}
+function curTheme(){var t=ROOT.getAttribute("data-theme");if(t==="dark"||t==="light")return t;return (window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";}
+var SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+var MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+function themeBtn(){var d=curTheme()==="dark";return '<button class="themebtn" type="button" id="themeb" aria-label="'+(d?"Увімкнути світлу тему":"Увімкнути темну тему")+'">'+(d?SUN:MOON)+'<span>'+(d?"Світла тема":"Темна тема")+'</span></button>';}
+document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("#themeb");if(!b)return;var n=curTheme()==="dark"?"light":"dark";ROOT.setAttribute("data-theme",n);try{localStorage.setItem("interactive-school-theme",n);}catch(err){}b.outerHTML=themeBtn();});
+
+/* налаштування вчителя, збережені на цьому комп'ютері (спільні з «Поштовою місією») */
+var CFG=Object.assign({},CONFIG);
+try{var sv=JSON.parse(localStorage.getItem("misiia-config")||"null");if(sv)["teacherName","teacherGreeting","teacherEmail","className"].forEach(function(k){if(sv[k])CFG[k]=sv[k];});}catch(e){}
+/* налаштування з посилання вчителя: ?t=Ім'я&g=Звертання&e=адреса&c=клас */
+var PKEYS={t:"teacherName",g:"teacherGreeting",e:"teacherEmail",c:"className"};
+var FROM_LINK=false;
+try{var qs=new URLSearchParams(location.search);Object.keys(PKEYS).forEach(function(k){var v=qs.get(k);if(v&&v.trim()){CFG[PKEYS[k]]=v.trim();FROM_LINK=true;}});}catch(e){}
+function studentLink(c){var base=location.href.split("#")[0].split("?")[0];var p=[];Object.keys(PKEYS).forEach(function(k){var v=c[PKEYS[k]];if(v)p.push(k+"="+encodeURIComponent(v));});return base+"?"+p.join("&");}
+
+function buildMissions(){
+  var T=CFG.teacherEmail,TN=CFG.teacherName,TG=CFG.teacherGreeting||CFG.teacherName;
+  var DOC="Переклад — {name}, {cls}";
+  return [
+  {type:"translate",train:true,title:"Переклад тексту",brief:"Перекладемо англійський текст про захоплення українською за допомогою онлайн-перекладача. Текст можна скопіювати.",
+   hint:"Текст для перекладу — у вікні праворуч.<br>Перекладач відкривай у <b>приватному вікні</b> (Ctrl+Shift+N), якщо у шкільному обліковому записі він не доступний.",
+   win:{head:"Онлайн-перекладач",rows:[["service","Сервіс","обери сервіс"],["mode","Режим","обери режим"],["langs","Мови","обери мови"]]},
+   steps:[
+    {field:"service",prompt:"Яким сервісом перекласти текст?",options:[
+      {t:"Google Перекладач (translate.google.com)",ok:true,why:"Це онлайн-перекладач: він працює в браузері без входу в обліковий запис, тому його можна відкрити в приватному вікні."},
+      {t:"Google Диск",why:"Google Диск — хмарне сховище для файлів, а не перекладач."},
+      {t:"Gmail",why:"Gmail — для електронного листування."}]},
+    {field:"mode",prompt:"Ти скопіюєш текст і вставиш його в перекладач. Який режим вибрати?",options:[
+      {t:"Текст",ok:true,why:"Режим «Текст» — для тексту, уведеного з клавіатури або вставленого з Буфера обміну (до 5000 символів)."},
+      {t:"Документи",why:"Режим «Документи» перекладає цілі файли docx, pdf, pptx, xlsx."},
+      {t:"Вебсайти",why:"Режим «Вебсайти» перекладає сторінку за її адресою."}]},
+    {field:"langs",prompt:"Які мови вибрати?",options:[
+      {t:"Англійська -> Українська",ok:true,why:"Текст написано англійською, а переклад потрібен українською."},
+      {t:"Українська -> Англійська",why:"Навпаки: так перекладають з української на англійську."},
+      {t:"Англійська -> Англійська",why:"Так нічого не перекладеться: обидві мови однакові."}]}
+   ],
+   google:{title:"Переклади текст у Google Перекладачі",note:"Тренування: текст можна копіювати. Перекладач працює в приватному вікні, без входу в обліковий запис. Виконуй кроки й став позначки.",copies:[["Скопіювати англійський текст",SOURCE_TITLE+"\n\n"+SOURCE_TEXT],["Скопіювати адресу перекладача","translate.google.com"]],tasks:[
+     "Відкрий приватне вікно браузера: Ctrl+Shift+N (або меню браузера -> «Нове вікно в режимі анонімного перегляду»). У шкільному обліковому записі Перекладач заблокований, а в приватному вікні він працює без входу.",
+     "У приватному вікні перейди на translate.google.com (адресу можна скопіювати кнопкою вище).",
+     "Вибери режим «Текст». Ліворуч вибери англійську мову, праворуч — українську.",
+     "Скопіюй англійський текст кнопкою вище і встав його в ліве поле.",
+     "Прочитай переклад праворуч. Натисни «Копіювати переклад» — він знадобиться в наступній місії.",
+     "Не закривай приватне вікно. Документ у наступній місії створюй у звичайному вікні, де ти увійшов у свій обліковий запис."]}},
+
+  {type:"doc",title:"Документ з перекладом",brief:"Створи на своєму Google Диску документ, назви його за зразком і встави туди переклад з Перекладача.",
+   hint:'Назва документа: <span class="mono">'+esc(DOC.replace("{name}","Прізвище Ім'я").replace("{cls}","клас"))+'</span>',
+   win:{head:"Google Диск · новий документ",rows:[["where","Як створити","обери спосіб"],["name","Назва","обери назву"],["save","Збереження","як зберегти"]]},
+   steps:[
+    {field:"where",prompt:"Як створити Google Документ на своєму Диску?",options:[
+      {t:"Google Диск -> Створити -> Google Документи",ok:true,why:"Так документ одразу створиться на твоєму Google Диску."},
+      {t:"Відкрити Microsoft Word на комп'ютері",why:"Файл Word збережеться на цьому комп'ютері, а не в хмарі. Поділитися ним з учителем так не вийде."},
+      {t:"Gmail -> Написати",why:"Так створюють лист, а не документ."}]},
+    {field:"name",prompt:"Як назвати документ?",options:[
+      {t:DOC,ok:true,why:"З назви зрозуміло, що це за робота і чия вона."},
+      {t:"Документ без назви",why:"Таку назву Google дає сам. У вчителя будуть десятки однакових «Документів без назви»."},
+      {t:"111",why:"З такої назви незрозуміло ні що це, ні хто автор."}]},
+    {field:"save",prompt:"Що зробити, щоб документ не пропав?",options:[
+      {t:"Нічого — він зберігається на Диску автоматично",ok:true,why:"Онлайн-документ зберігається сам після кожної зміни. Угорі видно напис про збереження на Диску."},
+      {t:"Файл -> Завантажити -> Microsoft Word",why:"Так ти збережеш копію на комп'ютер. Для цього завдання це не потрібно: документ уже є на Диску."},
+      {t:"Надіслати його собі листом",why:"Не потрібно: документ уже в хмарі, на твоєму Google Диску."}]}
+   ],
+   google:{title:"Створи документ на Google Диску",note:"Цей документ ти створюєш сам, на своєму Google Диску. Переклад просто встав — виправляти його не потрібно.",own:[
+     "Назва документа точно за зразком: «Переклад — Прізвище Ім'я, клас».",
+     "У першому рядку — заголовок тексту українською.",
+     "Далі — переклад усього тексту, як його видав Перекладач. Виправляти не потрібно.",
+     "В останньому рядку — «Переклад виконав(-ла): Прізвище Ім'я»."],
+    copies:[["Скопіювати назву документа",DOC]],tasks:[
+     "Перейди у звичайне вікно браузера, де ти увійшов у свій обліковий запис, і відкрий drive.google.com (кнопка «Додатки Google» -> Диск).",
+     "Натисни «Створити» -> «Google Документи».",
+     "Угорі ліворуч натисни «Документ без назви» і введи назву за зразком.",
+     "Встав переклад (Ctrl+V), додай заголовок і підпис за вимогами вище.",
+     "Перевір, що вгорі є напис про збереження на Диску."]}},
+
+  {type:"share",title:"Доступ для вчителя",brief:"Поділися документом з учителем ("+TN+"). Учитель прочитає твій переклад і залишить коментарі, а змінювати твій текст не буде.",
+   hint:'Адреса вчителя: <span class="mono">'+esc(T)+'</span>',
+   win:{head:"Поділіться файлом «Переклад — {name}»",rows:[["where","Куди ввести","обери поле"],["level","Рівень доступу","обери рівень"],["notify","Сповістити","як повідомити"]]},
+   steps:[
+    {field:"where",prompt:"Куди ввести адресу вчителя?",options:[
+      {t:"У поле «Додайте користувачів і групи» у вікні «Поділитися»",ok:true,why:"Саме тут вказують, кому надати доступ до документа."},
+      {t:"У поле «Кому» в новому листі Gmail",why:"Так ти надішлеш лист, але доступу до документа вчитель не отримає."},
+      {t:"У назву документа",why:"Назва лише підписує файл. Доступ так не надається."}]},
+    {field:"level",prompt:"Який рівень доступу дати вчителю?",options:[
+      {t:"Може коментувати (Коментатор)",ok:true,why:"Вчитель зможе читати й залишати коментарі, але не змінить твій текст."},
+      {t:"Може переглядати (Читач)",why:"Вчитель зможе лише читати, а залишити коментар не зможе."},
+      {t:"Може редагувати (Редактор)",why:"Забагато: редагувати вчителю не потрібно. Давай стільки доступу, скільки треба."}]},
+    {field:"notify",prompt:"Як учитель дізнається, що ти надав доступ?",options:[
+      {t:"Позначка «Сповістити» + повідомлення — вчителю прийде лист",ok:true,why:"Вчитель отримає лист з кнопкою «Відкрити» і твоїм повідомленням."},
+      {t:"Ніяк: вчитель сам здогадається",why:"Без сповіщення вчителю доведеться шукати файл у розділі «Відкриті для мене» серед усіх робіт."},
+      {t:"Треба окремо надіслати документ як вкладення",why:"Не треба: доступ уже надано, а вкладення створить ще одну копію файлу."}]}
+   ],
+   google:{title:"Надай доступ у Google Документах",copies:[["Скопіювати адресу вчителя",T],["Скопіювати повідомлення",TG+", надаю доступ до свого перекладу. {name}, {cls}"]],tasks:[
+     "У своєму документі натисни кнопку «Поділитися» (угорі праворуч).",
+     "У поле «Додайте користувачів і групи» встав адресу вчителя. Якщо Gmail не підказує контакт — скопіюй адресу кнопкою вище.",
+     "Праворуч від адреси вибери рівень «Коментатор» (Може коментувати).",
+     "Перевір, що стоїть позначка «Сповістити». Встав повідомлення.",
+     "Натисни «Надіслати»."]}},
+
+  {type:"slides",title:"Слайд «Моє захоплення»",brief:"Вчитель створив презентацію «Моє захоплення» і дав класу доступ на редагування. Знайди її на своєму Google Диску, відкрий слайд зі своїм прізвищем та ім'ям і розкажи про своє захоплення.",
+   hint:"Посилання на презентацію немає: знайди її сам на Google Диску.",
+   win:{head:"Google Диск",rows:[["find","Де шукати","обери розділ"],["slide","Мій слайд","обери слайд"],["img","Картинка","як додати"],["other","Чужий слайд","що робити"]]},
+   steps:[
+    {field:"find",prompt:"Вчитель надав тобі доступ до презентації. У якому розділі Google Диска її шукати?",options:[
+      {t:"Відкриті для мене",ok:true,why:"Тут файли, до яких тобі надали доступ інші люди."},
+      {t:"Кошик",why:"У Кошику — видалені файли."},
+      {t:"Комп'ютери",why:"Тут папки, синхронізовані з комп'ютера."}]},
+    {field:"slide",prompt:"Який слайд тобі заповнювати?",options:[
+      {t:"Слайд зі своїм прізвищем та ім'ям",ok:true,why:"У кожного свій слайд, тому ніхто нікому не заважає."},
+      {t:"Перший слайд",why:"Перший — титульний слайд учителя."},
+      {t:"Будь-який порожній",why:"Так можна зайняти чужий слайд. Шукай свій — з прізвищем та ім'ям."}]},
+    {field:"img",prompt:"Як додати картинку на слайд?",options:[
+      {t:"Вставити -> Зображення -> Шукати в Інтернеті",ok:true,why:"Картинку можна знайти просто з меню. Ще можна вибрати «Завантажити з комп'ютера»."},
+      {t:"Надрукувати на слайді адресу картинки",why:"Тоді на слайді буде лише текст адреси, а не зображення."},
+      {t:"Файл -> Завантажити",why:"Ця команда зберігає всю презентацію на комп'ютер."}]},
+    {field:"other",prompt:"Ти випадково змінив чужий слайд. Що робити?",options:[
+      {t:"Скасувати (Ctrl+Z) і сказати вчителю",ok:true,why:"Над презентацією працює весь клас. Чужу роботу треба повернути як було."},
+      {t:"Нічого: вчитель не помітить",why:"Помітить: в історії версій видно, хто що змінив. Та й однокласнику буде прикро."},
+      {t:"Видалити цей слайд",why:"Так однокласник утратить свою роботу."}]}
+   ],
+   google:{title:"Заповни свій слайд",own:[
+     "Заголовок: назва твого захоплення.",
+     "3–5 речень своїми словами: що це, відколи ти цим захоплюєшся, чому тобі подобається.",
+     "1–2 картинки до теми.",
+     "Пиши без помилок і не ВЕЛИКИМИ ЛІТЕРАМИ.",
+     "Чужі слайди не змінюй і не видаляй."],tasks:[
+     "Відкрий drive.google.com і ліворуч вибери «Відкриті для мене».",
+     "Знайди презентацію «Моє захоплення» і відкрий її подвійним клацанням.",
+     "У списку слайдів ліворуч знайди слайд зі своїм прізвищем та ім'ям.",
+     "Напиши заголовок і текст про своє захоплення.",
+     "Додай картинку: Вставити -> Зображення -> Шукати в Інтернеті.",
+     "Перевір, що чужі слайди лишилися без змін."]}}
+  ];
+}
+var MISSIONS=buildMissions();
+function total(){return MISSIONS.reduce(function(s,m){return s+m.steps.length;},0);}
+
+var $=function(s){return document.querySelector(s);};
+var app=$("#app");
+var S;
+function fresh(){return {screen:"start",name:S&&S.name||"",cls:S&&S.cls||CFG.className,mi:0,si:0,stage:"steps",gm:[],gmDone:{},order:{},tried:[],fb:null,done:{},score:0,misses:[]};}
+function nm(){return S.name.trim()||"Учень";}
+function cls(){return (S.cls||"").trim()||CFG.className;}
+function fill(t){return t.replace(/\{name\}/g,nm()).replace(/\{cls\}/g,cls());}
+function shuffled(n,key){if(!S.order[key]){var a=[];for(var i=0;i<n;i++)a.push(i);for(var j=a.length-1;j>0;j--){var k=Math.floor(Math.random()*(j+1));var t=a[j];a[j]=a[k];a[k]=t;}S.order[key]=a;}return S.order[key];}
+function chosen(mi,field){var m=MISSIONS[mi];for(var i=0;i<m.steps.length;i++){if(m.steps[i].field===field&&S.done[mi+"."+i]!==undefined)return m.steps[i].options[S.done[mi+"."+i]];}return null;}
+function stepsDone(){return S.si>=MISSIONS[S.mi].steps.length;}
+
+function topbar(){
+  var pips=MISSIONS.map(function(m,i){var c=i<S.mi?"done":(i===S.mi&&S.screen==="play"?"now":"");return '<div class="pip '+c+'" title="'+esc(m.title)+'">'+(i<S.mi?CHK:(i+1))+'</div>';}).join("");
+  return '<div class="bar"><div class="brand"><span class="at" aria-hidden="true">'+CLOUD+'</span><h1>Хмарна місія</h1><a class="home" href="../index.html">На головну</a></div>'+
+    (S.screen==="play"?'<div class="track" aria-label="Прогрес місій">'+pips+'</div>':'')+
+    '<div class="barright">'+(S.screen==="play"?'<div class="score">Бали: '+S.score+' / '+total()+'</div>':'')+themeBtn()+'</div></div>';
+}
+
+/* ---------- start ---------- */
+function renderStart(){
+  app.innerHTML=topbar()+'<section class="hero"><div class="air"></div><div class="hero-in">'+
+   '<div class="stack"><div class="label">Практична робота</div><h2>Робота з хмарними технологіями Google</h2>'+
+   '<p>Перекладеш текст онлайн, створиш свій Google Документ, поділишся ним з учителем і разом з класом наповниш спільну презентацію. У кожній місії спочатку розберись із завданням тут, а потім виконай його у своєму обліковому записі Google.</p>'+
+   '<form class="form" id="f"><label class="label" for="nm">Прізвище та ім\'я</label><input id="nm" maxlength="40" placeholder="Наприклад, Бондар Софія" value="'+esc(S.name)+'">'+
+   '<label class="label" for="cl">Клас</label><input id="cl" maxlength="10" value="'+esc(S.cls)+'">'+
+   '<button class="primary" type="submit">Почати місію</button></form>'+
+   (FROM_LINK?'<p class="note" style="margin:0">Дані вчителя завантажено з посилання — нічого налаштовувати не треба.</p>':'<details class="cfg"><summary>Налаштування для вчителя</summary><p class="note" style="margin:8px 0 0">Впишіть свої дані й натисніть «Створити посилання». Дайте учням це посилання — у грі буде ваша адреса.</p><form class="form" id="cf">'+
+    '<label class="label" for="tn">Ім\'я вчителя (як звертатися)</label><input id="tn" value="'+esc(CFG.teacherName)+'">'+
+    '<label class="label" for="tg">Звертання в повідомленні (кличний відмінок)</label><input id="tg" value="'+esc(CFG.teacherGreeting||'')+'">'+
+    '<label class="label" for="te">Адреса вчителя</label><input id="te" class="mono" value="'+esc(CFG.teacherEmail)+'">'+
+    '<label class="label" for="dc">Клас за замовчуванням</label><input id="dc" value="'+esc(CFG.className)+'">'+
+    '<button class="primary" type="submit">Створити посилання для учнів</button><span class="note" id="cfn"></span>'+
+    '<div id="lk" hidden><label class="label" for="lko">Посилання для учнів</label><input id="lko" class="linkout" readonly><button class="copy" type="button" id="lkc">Скопіювати посилання</button></div></form></details>')+'</div>'+
+   '<div class="stack"><div class="label">Місії</div><ol class="mlist">'+MISSIONS.map(function(m,i){return '<li><span class="n">0'+(i+1)+'</span><span>'+esc(m.title)+(m.train?' <span class="note">· тренування</span>':' <span class="note">· робиш сам</span>')+'</span></li>';}).join("")+'</ol>'+
+   '<div class="hint">Перед початком увійди у свій обліковий запис Google у браузері.<br>Вчитель: <b>'+esc(CFG.teacherName)+'</b>, <span class="mono">'+esc(CFG.teacherEmail)+'</span></div></div>'+
+  '</div></section>';
+  $("#f").addEventListener("submit",function(e){e.preventDefault();S.name=$("#nm").value;S.cls=$("#cl").value;S.screen="play";MISSIONS=buildMissions();render();});
+  if($("#cf"))$("#cf").addEventListener("submit",function(e){e.preventDefault();
+    CFG.teacherName=$("#tn").value.trim()||CONFIG.teacherName;CFG.teacherGreeting=$("#tg").value.trim()||CFG.teacherName;CFG.teacherEmail=$("#te").value.trim()||CONFIG.teacherEmail;CFG.className=$("#dc").value.trim()||CONFIG.className;
+    try{var old=JSON.parse(localStorage.getItem("misiia-config")||"null")||{};localStorage.setItem("misiia-config",JSON.stringify(Object.assign(old,{teacherName:CFG.teacherName,teacherGreeting:CFG.teacherGreeting,teacherEmail:CFG.teacherEmail,className:CFG.className})));}catch(err){}
+    MISSIONS=buildMissions();S.cls=CFG.className;renderStart();$(".cfg").open=true;
+    var url=studentLink(CFG);$("#lk").hidden=false;$("#lko").value=url;$("#cfn").textContent="Готово. Дані також збережено на цьому комп'ютері.";
+    $("#lkc").addEventListener("click",function(){copyText(url,this);});$("#lko").addEventListener("focus",function(){this.select();});});
+}
+
+/* ---------- window ---------- */
+function extraWin(m){
+  if(m.type==="translate")return '<div class="src"><div class="label">Текст для перекладу · англійська</div><b>'+esc(SOURCE_TITLE)+'</b><p>'+esc(SOURCE_TEXT)+'</p></div>';
+  if(m.type==="slides"){
+    var slide=chosen(S.mi,"slide");
+    var list=[["Моє захоплення","титульний"],["Мельник Дарина",""],[nm(),"me"],["Ткачук Марко",""]];
+    return '<div class="slides"><div class="label">Презентація «Моє захоплення» · власник: '+esc(CFG.teacherName)+'</div><div class="sl">'+list.map(function(s,i){return '<div class="sli'+(slide&&s[1]==="me"?" me":"")+'"><span class="sn">'+(i+1)+'</span><span>'+esc(s[0])+(s[1]==="титульний"?'<small>титульний</small>':'')+'</span></div>';}).join("")+'</div></div>';
+  }
+  return "";
+}
+function formWin(m){
+  var act=!stepsDone()&&S.stage==="steps"?m.steps[S.si].field:"";
+  return '<div class="win"><div class="air"></div><div class="win-head"><span>'+esc(fill(m.win.head))+'</span><span class="label">'+esc(nm())+'</span></div>'+
+   m.win.rows.map(function(r){var o=chosen(S.mi,r[0]);return '<div class="row '+(act===r[0]?"active":"")+'"><span class="k">'+esc(r[1])+'</span><span class="v">'+(o?arw(esc(fill(o.t))):'<span class="ph">'+esc(r[2])+'</span>')+'</span></div>';}).join("")+
+   extraWin(m)+'</div>';
+}
+
+/* ---------- play ---------- */
+function renderPlay(){
+  var m=MISSIONS[S.mi];
+  var win=formWin(m);
+  var panel;
+  if(S.stage==="google"){panel=googlePanel(m);}
+  else if(stepsDone()){
+    panel='<div class="panel">'+(S.fb?fbHtml():"")+'<div class="q">Готово! Ти розібрався з усіма кроками.</div><button class="primary" id="next">Тепер у Google</button></div>';
+  } else {
+    var st=m.steps[S.si],ord=shuffled(st.options.length,S.mi+"."+S.si);
+    panel='<div class="panel"><div class="label">Крок '+(S.si+1)+' з '+m.steps.length+'</div><div class="q">'+esc(st.prompt)+'</div>'+
+     '<div class="opts" id="opts">'+ord.map(function(i){var o=st.options[i];return '<button class="opt" data-i="'+i+'" '+(S.tried.indexOf(i)>=0?"disabled":"")+'>'+arw(esc(fill(o.t)))+'</button>';}).join("")+'</div>'+(S.fb?fbHtml():"")+'</div>';
+  }
+  var kind={translate:"Онлайн-перекладач",doc:"Google Документи",share:"Спільний доступ",slides:"Спільна презентація"}[m.type];
+  app.innerHTML=topbar()+'<div class="grid"><aside class="brief"><div class="stamp">місія<b>'+(S.mi+1)+'</b>з '+MISSIONS.length+'</div>'+
+    '<div class="label kind">'+kind+(m.train?' · тренування':' · робиш сам')+'</div><h2 class="kind">'+esc(m.title)+'</h2><p>'+esc(m.brief)+'</p>'+(m.hint?'<div class="hint">'+m.hint+'</div>':'')+'</aside>'+
+    '<div class="stack">'+win+panel+'</div></div>';
+  var opts=$("#opts");if(opts)opts.addEventListener("click",function(e){var b=e.target.closest(".opt");if(b&&!b.disabled)choose(+b.getAttribute("data-i"));});
+  var nx=$("#next");if(nx)nx.addEventListener("click",function(){S.stage="google";S.gm=[];S.fb=null;render();});
+  if(S.stage==="google")wireGoogle(m);
+}
+function fbHtml(){return '<div class="fb '+(S.fb.good?"good":"bad")+'" role="status"><b>'+(S.fb.good?"Правильно!":"Не зовсім.")+'</b>'+esc(S.fb.why)+'</div>';}
+function choose(i){
+  var st=MISSIONS[S.mi].steps[S.si],o=st.options[i];
+  if(o.ok){
+    if(S.tried.length===0)S.score++;else S.misses.push({m:MISSIONS[S.mi].title,q:st.prompt,a:fill(o.t),why:o.why});
+    S.done[S.mi+"."+S.si]=i;S.si++;S.tried=[];S.fb={good:true,why:o.why};render();
+  } else {
+    S.tried.push(i);S.fb={good:false,why:o.why};render();
+    var nb=document.querySelector('.opt[data-i="'+i+'"]');if(nb)nb.classList.add("shake");
+  }
+}
+
+/* ---------- google stage ---------- */
+function googlePanel(m){
+  var g=m.google,copies=g.copies||[];
+  var all=S.gm.length===g.tasks.length&&S.gm.every(function(x){return x;});
+  return '<div class="gm"><h3><span class="gm-badge">Google</span>'+esc(g.title)+'</h3>'+
+   '<p class="note" style="margin:0">'+(g.note?esc(g.note):g.own?'Це завдання ти виконуєш <b>сам</b>, своїми словами. Саме його оцінює вчитель.':'Виконуй кроки у своєму обліковому записі Google і став позначки.')+'</p>'+
+   (copies.length?'<div class="copies" id="cps">'+copies.map(function(c,i){return '<button class="copy" data-c="'+i+'">'+esc(c[0])+'</button>';}).join("")+'</div>':'')+
+   (g.own?'<div class="hint"><b style="color:var(--ink)">Вимоги</b><ul style="margin:6px 0 0;padding-left:20px">'+g.own.map(function(r){return '<li>'+arw(esc(r))+'</li>';}).join("")+'</ul></div>':'')+
+   '<ul class="tasks" id="tasks">'+g.tasks.map(function(t,i){var on=!!S.gm[i];return '<li><label class="task '+(on?"done":"")+'"><input type="checkbox" data-t="'+i+'" '+(on?"checked":"")+'><span>'+(i+1)+'. '+arw(esc(t))+'</span></label></li>';}).join("")+'</ul>'+
+   '<div class="btnrow"><button class="primary" id="gnext" '+(all?"":"disabled")+'>'+(S.mi===MISSIONS.length-1?"Завершити":"Наступна місія")+'</button>'+
+   '<button class="ghost" id="later">Зроблю пізніше</button></div></div>';
+}
+function copyText(txt,btn){
+  var done=function(){var o=btn.textContent;btn.classList.add("ok");btn.textContent="Скопійовано";setTimeout(function(){btn.classList.remove("ok");btn.textContent=o;},1500);};
+  var fallback=function(){var ta=document.createElement("textarea");ta.value=txt;ta.style.position="fixed";ta.style.top="-1000px";document.body.appendChild(ta);ta.select();var ok=false;try{ok=document.execCommand("copy");}catch(e){}document.body.removeChild(ta);if(ok)done();else btn.textContent="Виділи й скопіюй вручну";};
+  try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,fallback);return;}}catch(e){}
+  fallback();
+}
+function wireGoogle(m){
+  var g=m.google,copies=g.copies||[];
+  var cps=$("#cps");if(cps)cps.addEventListener("click",function(e){var b=e.target.closest(".copy");if(b)copyText(fill(copies[+b.getAttribute("data-c")][1]),b);});
+  $("#tasks").addEventListener("change",function(e){var i=+e.target.getAttribute("data-t");S.gm[i]=e.target.checked;
+    e.target.parentNode.classList.toggle("done",e.target.checked);
+    var all=g.tasks.every(function(t,k){return S.gm[k];});$("#gnext").disabled=!all;});
+  $("#gnext").addEventListener("click",function(){S.gmDone[S.mi]=true;nextMission();});
+  $("#later").addEventListener("click",function(){S.gmDone[S.mi]=false;nextMission();});
+}
+function nextMission(){
+  if(S.stage==="google"&&!(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches)){
+    var f=document.createElement("div");f.className="fly";f.innerHTML=FLY;document.body.appendChild(f);setTimeout(function(){if(f.parentNode)f.parentNode.removeChild(f);},950);
+  }
+  S.fb=null;S.tried=[];S.stage="steps";S.gm=[];
+  if(S.mi===MISSIONS.length-1){S.screen="end";}else{S.mi++;S.si=0;}
+  render();window.scrollTo(0,0);
+}
+
+/* ---------- end ---------- */
+function rank(p){return p===1?"Хмарний майстер":p>=.8?"Досвідчений користувач хмари":p>=.5?"Впевнений користувач":"Хмарний стажер";}
+function renderEnd(){
+  var T=total(),p=S.score/T;
+  var real=MISSIONS.map(function(m,i){var ok=S.gmDone[i]===true;return '<li><span class="st '+(ok?"y":"n")+'">'+(ok?"Виконано":"Не виконано")+'</span><span>'+esc(m.title)+(m.train?' <span class="note">(тренування)</span>':' <b>(оцінюється)</b>')+'</span></li>';}).join("");
+  app.innerHTML=topbar()+'<section class="hero"><div class="air"></div><div class="hero-in">'+
+   '<div class="stack"><div class="label">Практичну роботу завершено</div><h2>'+esc(nm())+', твоє звання: '+rank(p)+'</h2>'+
+   '<p>З першої спроби правильно '+S.score+' відповідей із '+T+'.</p>'+
+   '<div class="result"><div class="post"><div><span>бали</span><b>'+S.score+'/'+T+'</b><span>'+esc(cls())+'</span></div></div></div>'+
+   '<div class="label">Завдання в Google</div><ul class="final">'+real+'</ul>'+
+   '<p class="note">Покажи цей екран учителю. Вчитель перевірить твій документ і слайд у Google.</p>'+
+   '<button class="primary" id="again">Пройти знову</button></div>'+
+   '<div class="stack"><div class="label">'+(S.misses.length?"Над чим попрацювати":"Помилок немає")+'</div>'+
+    (S.misses.length?'<ul class="miss">'+S.misses.map(function(x){return '<li><div class="label">'+esc(x.m)+'</div><div>'+esc(x.q)+'</div><div class="ans">'+arw(esc(x.a))+'</div><div>'+esc(x.why)+'</div></li>';}).join("")+'</ul>':'<p>Усі відповіді правильні з першої спроби. Так тримати!</p>')+
+   '</div></div></section>';
+  $("#again").addEventListener("click",function(){var n=S.name,c=S.cls;S=fresh();S.name=n;S.cls=c;S.screen="play";render();});
+}
+function render(){if(S.screen==="start")renderStart();else if(S.screen==="play")renderPlay();else renderEnd();}
+
+S=fresh();render();
+})();
+</script>
