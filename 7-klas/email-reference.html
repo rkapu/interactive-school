@@ -280,7 +280,7 @@ function renderAdresa(el){
     <div class="chips" id="ach">${["olena@ukr.net","olena.ukr.net","olena@@ukr.net","olena ivanova@ukr.net","didus.ivan@gmial.com","sofia@gmail"].map(a=>`<button class="chip mono">${esc(a)}</button>`).join("")}</div>
    </div>
    <div class="box"><h3>Запам'ятай</h3>
-    <ul class="rules"><li>Щоб мати скриньку, треба зареєструватися — створити <b>обліковий запис</b> (акаунт).</li><li><b>Логін</b> — умовне ім'я, яке ти придумуєш сам.</li><li><b>Пароль</b> захищає скриньку. Нікому його не кажи!</li><li>Приклади поштових сервісів: FREEMAIL (ukr.net), I.UA, Meta, Gmail, Outlook.</li></ul>
+    <ul class="rules"><li>Щоб мати скриньку, треба зареєструватися — створити <b>обліковий запис</b> (акаунт).</li><li><b>Логін</b> — умовне ім'я, яке ти придумуєш самостійно.</li><li><b>Пароль</b> захищає скриньку. Нікому його не кажи!</li><li>Приклади поштових сервісів: FREEMAIL (ukr.net), I.UA, Meta, Gmail, Outlook.</li></ul>
    </div>
   </div>`;
   const ai=el.querySelector("#ai"),av=el.querySelector("#av");
@@ -417,7 +417,7 @@ const FLAGS={
  pass:"Просять ввести логін і пароль. Справжні служби безпеки ніколи не просять такого робити!"
 };
 function renderBezpeka(el){
-  el.innerHTML=`<p class="lead">Це <b>фішинговий</b> лист — спроба «виудити» твій пароль. Натискай на підозрілі місця в листі. Знайди всі ознаки!</p>
+  el.innerHTML=`<p class="lead">Це <b>фішинговий</b> лист — спроба вкрасти твій пароль. Натискай на підозрілі місця в листі. Знайди всі ознаки!</p>
   <div class="cols">
    <div class="mail"><div class="bar"><span>Вхідні</span><span class="counter" id="cnt">0 / 6</span></div>
     <div class="mrow"><span class="k">Від</span><span class="v">Служба безпеки <button class="flag mono" data-k="from">&lt;security@ukrnet-support.help-desk.xyz&gt;</button></span></div>

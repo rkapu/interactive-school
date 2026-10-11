@@ -134,6 +134,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--focus);outline-
 .post{width:150px;height:150px;border-radius:50%;border:3px solid var(--red);color:var(--red);display:grid;place-items:center;text-align:center;transform:rotate(-8deg);font-family:var(--f-display);flex:none}
 .post b{font-size:34px;display:block;font-variant-numeric:tabular-nums}
 .post span{font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.award svg{display:block;width:160px;height:auto}
 .result{display:flex;flex-wrap:wrap;gap:24px;align-items:center}
 .miss{display:flex;flex-direction:column;gap:10px;margin:0;padding:0;list-style:none}
 .miss li{background:var(--surface-2);border-radius:8px;padding:10px 14px;font-size:14px}
@@ -235,7 +236,7 @@ function buildMissions(){
      "Вибери режим «Текст». Ліворуч вибери англійську мову, праворуч — українську.",
      "Скопіюй англійський текст кнопкою вище і встав його в ліве поле.",
      "Прочитай переклад праворуч. Натисни «Копіювати переклад» — він знадобиться в наступній місії.",
-     "Не закривай приватне вікно. Документ у наступній місії створюй у звичайному вікні, де ти увійшов у свій обліковий запис."]}},
+     "Не закривай приватне вікно. Документ у наступній місії створюй у звичайному вікні, де виконано вхід у твій обліковий запис."]}},
 
   {type:"doc",title:"Документ з перекладом",brief:"Створи на своєму Google Диску документ, назви його за зразком і встави туди переклад з Перекладача.",
    hint:'Назва документа: <span class="mono">'+esc(DOC.replace("{name}","Прізвище Ім'я").replace("{cls}","клас"))+'</span>',
@@ -254,13 +255,13 @@ function buildMissions(){
       {t:"Файл -> Завантажити -> Microsoft Word",why:"Так ти збережеш копію на комп'ютер. Для цього завдання це не потрібно: документ уже є на Диску."},
       {t:"Надіслати його собі листом",why:"Не потрібно: документ уже в хмарі, на твоєму Google Диску."}]}
    ],
-   google:{title:"Створи документ на Google Диску",note:"Цей документ ти створюєш сам, на своєму Google Диску. Переклад просто встав — виправляти його не потрібно.",own:[
+   google:{title:"Створи документ на Google Диску",note:"Цей документ ти створюєш самостійно, на своєму Google Диску. Переклад просто встав — виправляти його не потрібно.",own:[
      "Назва документа точно за зразком: «Переклад — Прізвище Ім'я, клас».",
      "У першому рядку — заголовок тексту українською.",
      "Далі — переклад усього тексту, як його видав Перекладач. Виправляти не потрібно.",
      "В останньому рядку — «Переклад виконав(-ла): Прізвище Ім'я»."],
     copies:[["Скопіювати назву документа",DOC]],tasks:[
-     "Перейди у звичайне вікно браузера, де ти увійшов у свій обліковий запис, і відкрий drive.google.com (кнопка «Додатки Google» -> Диск).",
+     "Перейди у звичайне вікно браузера, де виконано вхід у твій обліковий запис, і відкрий drive.google.com (кнопка «Додатки Google» -> Диск).",
      "Натисни «Створити» -> «Google Документи».",
      "Угорі ліворуч натисни «Документ без назви» і введи назву за зразком.",
      "Встав переклад (Ctrl+V), додай заголовок і підпис за вимогами вище.",
@@ -278,7 +279,7 @@ function buildMissions(){
       {t:"Може коментувати (Коментатор)",ok:true,why:"Вчитель зможе читати й залишати коментарі, але не змінить твій текст."},
       {t:"Може переглядати (Читач)",why:"Вчитель зможе лише читати, а залишити коментар не зможе."},
       {t:"Може редагувати (Редактор)",why:"Забагато: редагувати вчителю не потрібно. Давай стільки доступу, скільки треба."}]},
-    {field:"notify",prompt:"Як учитель дізнається, що ти надав доступ?",options:[
+    {field:"notify",prompt:"Як учитель дізнається, що доступ уже надано?",options:[
       {t:"Позначка «Сповістити» + повідомлення — вчителю прийде лист",ok:true,why:"Вчитель отримає лист з кнопкою «Відкрити» і твоїм повідомленням."},
       {t:"Ніяк: вчитель сам здогадається",why:"Без сповіщення вчителю доведеться шукати файл у розділі «Відкриті для мене» серед усіх робіт."},
       {t:"Треба окремо надіслати документ як вкладення",why:"Не треба: доступ уже надано, а вкладення створить ще одну копію файлу."}]}
@@ -291,7 +292,7 @@ function buildMissions(){
      "Натисни «Надіслати»."]}},
 
   {type:"slides",title:"Слайд «Моє захоплення»",brief:"Вчитель створив презентацію «Моє захоплення» і дав класу доступ на редагування. Знайди її на своєму Google Диску, відкрий слайд зі своїм прізвищем та ім'ям і розкажи про своє захоплення.",
-   hint:"Посилання на презентацію немає: знайди її сам на Google Диску.",
+   hint:"Посилання на презентацію немає: знайди її самостійно на Google Диску.",
    win:{head:"Google Диск",rows:[["find","Де шукати","обери розділ"],["slide","Мій слайд","обери слайд"],["img","Картинка","як додати"],["other","Чужий слайд","що робити"]]},
    steps:[
     {field:"find",prompt:"Вчитель надав тобі доступ до презентації. У якому розділі Google Диска її шукати?",options:[
@@ -306,7 +307,7 @@ function buildMissions(){
       {t:"Вставити -> Зображення -> Шукати в Інтернеті",ok:true,why:"Картинку можна знайти просто з меню. Ще можна вибрати «Завантажити з комп'ютера»."},
       {t:"Надрукувати на слайді адресу картинки",why:"Тоді на слайді буде лише текст адреси, а не зображення."},
       {t:"Файл -> Завантажити",why:"Ця команда зберігає всю презентацію на комп'ютер."}]},
-    {field:"other",prompt:"Ти випадково змінив чужий слайд. Що робити?",options:[
+    {field:"other",prompt:"Що робити, якщо випадково змінити чужий слайд?",options:[
       {t:"Скасувати (Ctrl+Z) і сказати вчителю",ok:true,why:"Над презентацією працює весь клас. Чужу роботу треба повернути як було."},
       {t:"Нічого: вчитель не помітить",why:"Помітить: в історії версій видно, хто що змінив. Та й однокласнику буде прикро."},
       {t:"Видалити цей слайд",why:"Так однокласник утратить свою роботу."}]}
@@ -326,6 +327,7 @@ function buildMissions(){
   ];
 }
 var MISSIONS=buildMissions();
+function pct(n,d){return Math.round(100*n/d);}
 function total(){return MISSIONS.reduce(function(s,m){return s+m.steps.length;},0);}
 
 var $=function(s){return document.querySelector(s);};
@@ -343,7 +345,7 @@ function topbar(){
   var pips=MISSIONS.map(function(m,i){var c=i<S.mi?"done":(i===S.mi&&S.screen==="play"?"now":"");return '<div class="pip '+c+'" title="'+esc(m.title)+'">'+(i<S.mi?CHK:(i+1))+'</div>';}).join("");
   return '<div class="bar"><div class="brand"><span class="at" aria-hidden="true">'+CLOUD+'</span><h1>Хмарна місія</h1><a class="home" href="../index.html">На головну</a></div>'+
     (S.screen==="play"?'<div class="track" aria-label="Прогрес місій">'+pips+'</div>':'')+
-    '<div class="barright">'+(S.screen==="play"?'<div class="score">Бали: '+S.score+' / '+total()+'</div>':'')+themeBtn()+'</div></div>';
+    '<div class="barright">'+(S.screen==="play"?'<div class="score" title="Частка відповідей, правильних з першої спроби">Влучно: '+(S.score+S.misses.length?pct(S.score,S.score+S.misses.length)+'%':'—')+'</div>':'')+themeBtn()+'</div></div>';
 }
 
 /* ---------- start ---------- */
@@ -361,7 +363,7 @@ function renderStart(){
     '<label class="label" for="dc">Клас за замовчуванням</label><input id="dc" value="'+esc(CFG.className)+'">'+
     '<button class="primary" type="submit">Створити посилання для учнів</button><span class="note" id="cfn"></span>'+
     '<div id="lk" hidden><label class="label" for="lko">Посилання для учнів</label><input id="lko" class="linkout" readonly><button class="copy" type="button" id="lkc">Скопіювати посилання</button></div></form></details>')+'</div>'+
-   '<div class="stack"><div class="label">Місії</div><ol class="mlist">'+MISSIONS.map(function(m,i){return '<li><span class="n">0'+(i+1)+'</span><span>'+esc(m.title)+(m.train?' <span class="note">· тренування</span>':' <span class="note">· робиш сам</span>')+'</span></li>';}).join("")+'</ol>'+
+   '<div class="stack"><div class="label">Місії</div><ol class="mlist">'+MISSIONS.map(function(m,i){return '<li><span class="n">0'+(i+1)+'</span><span>'+esc(m.title)+(m.train?' <span class="note">· тренування</span>':' <span class="note">· самостійно</span>')+'</span></li>';}).join("")+'</ol>'+
    '<div class="hint">Перед початком увійди у свій обліковий запис Google у браузері.<br>Вчитель: <b>'+esc(CFG.teacherName)+'</b>, <span class="mono">'+esc(CFG.teacherEmail)+'</span></div></div>'+
   '</div></section>';
   $("#f").addEventListener("submit",function(e){e.preventDefault();S.name=$("#nm").value;S.cls=$("#cl").value;S.screen="play";MISSIONS=buildMissions();render();});
@@ -397,7 +399,7 @@ function renderPlay(){
   var panel;
   if(S.stage==="google"){panel=googlePanel(m);}
   else if(stepsDone()){
-    panel='<div class="panel">'+(S.fb?fbHtml():"")+'<div class="q">Готово! Ти розібрався з усіма кроками.</div><button class="primary" id="next">Тепер у Google</button></div>';
+    panel='<div class="panel">'+(S.fb?fbHtml():"")+'<div class="q">Готово! Усі кроки пройдено.</div><button class="primary" id="next">Тепер у Google</button></div>';
   } else {
     var st=m.steps[S.si],ord=shuffled(st.options.length,S.mi+"."+S.si);
     panel='<div class="panel"><div class="label">Крок '+(S.si+1)+' з '+m.steps.length+'</div><div class="q">'+esc(st.prompt)+'</div>'+
@@ -405,7 +407,7 @@ function renderPlay(){
   }
   var kind={translate:"Онлайн-перекладач",doc:"Google Документи",share:"Спільний доступ",slides:"Спільна презентація"}[m.type];
   app.innerHTML=topbar()+'<div class="grid"><aside class="brief"><div class="stamp">місія<b>'+(S.mi+1)+'</b>з '+MISSIONS.length+'</div>'+
-    '<div class="label kind">'+kind+(m.train?' · тренування':' · робиш сам')+'</div><h2 class="kind">'+esc(m.title)+'</h2><p>'+esc(m.brief)+'</p>'+(m.hint?'<div class="hint">'+m.hint+'</div>':'')+'</aside>'+
+    '<div class="label kind">'+kind+(m.train?' · тренування':' · самостійно')+'</div><h2 class="kind">'+esc(m.title)+'</h2><p>'+esc(m.brief)+'</p>'+(m.hint?'<div class="hint">'+m.hint+'</div>':'')+'</aside>'+
     '<div class="stack">'+win+panel+'</div></div>';
   var opts=$("#opts");if(opts)opts.addEventListener("click",function(e){var b=e.target.closest(".opt");if(b&&!b.disabled)choose(+b.getAttribute("data-i"));});
   var nx=$("#next");if(nx)nx.addEventListener("click",function(){S.stage="google";S.gm=[];S.fb=null;render();});
@@ -428,7 +430,7 @@ function googlePanel(m){
   var g=m.google,copies=g.copies||[];
   var all=S.gm.length===g.tasks.length&&S.gm.every(function(x){return x;});
   return '<div class="gm"><h3><span class="gm-badge">Google</span>'+esc(g.title)+'</h3>'+
-   '<p class="note" style="margin:0">'+(g.note?esc(g.note):g.own?'Це завдання ти виконуєш <b>сам</b>, своїми словами. Саме його оцінює вчитель.':'Виконуй кроки у своєму обліковому записі Google і став позначки.')+'</p>'+
+   '<p class="note" style="margin:0">'+(g.note?esc(g.note):g.own?'Це завдання ти виконуєш <b>самостійно</b>, своїми словами. Саме його оцінює вчитель.':'Виконуй кроки у своєму обліковому записі Google і став позначки.')+'</p>'+
    (copies.length?'<div class="copies" id="cps">'+copies.map(function(c,i){return '<button class="copy" data-c="'+i+'">'+esc(c[0])+'</button>';}).join("")+'</div>':'')+
    (g.own?'<div class="hint"><b style="color:var(--ink)">Вимоги</b><ul style="margin:6px 0 0;padding-left:20px">'+g.own.map(function(r){return '<li>'+arw(esc(r))+'</li>';}).join("")+'</ul></div>':'')+
    '<ul class="tasks" id="tasks">'+g.tasks.map(function(t,i){var on=!!S.gm[i];return '<li><label class="task '+(on?"done":"")+'"><input type="checkbox" data-t="'+i+'" '+(on?"checked":"")+'><span>'+(i+1)+'. '+arw(esc(t))+'</span></label></li>';}).join("")+'</ul>'+
@@ -460,14 +462,25 @@ function nextMission(){
 }
 
 /* ---------- end ---------- */
-function rank(p){return p===1?"Хмарний майстер":p>=.8?"Досвідчений користувач хмари":p>=.5?"Впевнений користувач":"Хмарний стажер";}
+var AWARDS=[
+ "<svg viewBox=\"0 0 200 170\" role=\"img\" aria-label=\"Золота хмаринка\"><defs><linearGradient id=\"cl-g\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#fff1b8\"/><stop offset=\"1\" stop-color=\"#e3b23c\"/></linearGradient></defs><g stroke=\"#e0a100\" stroke-width=\"4\" stroke-linecap=\"round\"><path d=\"M160 6v10M192 38h-10M183 15l-7 7M137 15l7 7\"/></g><circle cx=\"160\" cy=\"38\" r=\"17\" fill=\"#f7c948\" stroke=\"#e0a100\" stroke-width=\"3\"/><path d=\"M58 132A30 30 0 0 1 52 72A44 44 0 0 1 136 56A34 34 0 0 1 150 132Z\" fill=\"url(#cl-g)\" stroke=\"#6b4a00\" stroke-width=\"4\" stroke-linejoin=\"round\"/><polygon points=\"100,80 105.3,94.7 120.9,95.2 108.6,104.8 112.9,119.8 100,111 87.1,119.8 91.4,104.8 79.1,95.2 94.7,94.7\" fill=\"#fffaf0\" stroke=\"#6b4a00\" stroke-width=\"4\" stroke-linejoin=\"round\"/></svg>",
+ "<svg viewBox=\"0 0 200 170\" role=\"img\" aria-label=\"Срібна хмаринка\"><defs><linearGradient id=\"cl-s\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#f5f7fa\"/><stop offset=\"1\" stop-color=\"#b3bdc9\"/></linearGradient></defs><path d=\"M30 20l3 9 9 3-9 3-3 9-3-9-9-3 9-3z\" fill=\"#8d99a6\"/><path d=\"M172 14l2 6 6 2-6 2-2 6-2-6-6-2 6-2z\" fill=\"#8d99a6\"/><path d=\"M58 132A30 30 0 0 1 52 72A44 44 0 0 1 136 56A34 34 0 0 1 150 132Z\" fill=\"url(#cl-s)\" stroke=\"#3a4656\" stroke-width=\"4\" stroke-linejoin=\"round\"/><g fill=\"none\" stroke=\"#3a4656\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M83 98a18 18 0 0 1 32-8M117 80v10h-10M117 110a18 18 0 0 1-32 8M83 128v-10h10\"/></g></svg>",
+ "<svg viewBox=\"0 0 200 170\" role=\"img\" aria-label=\"Бронзова хмаринка\"><defs><linearGradient id=\"cl-b\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#f8d9bd\"/><stop offset=\"1\" stop-color=\"#c98350\"/></linearGradient></defs><path d=\"M58 132A30 30 0 0 1 52 72A44 44 0 0 1 136 56A34 34 0 0 1 150 132Z\" fill=\"url(#cl-b)\" stroke=\"#5e3216\" stroke-width=\"4\" stroke-linejoin=\"round\"/><g fill=\"none\" stroke=\"#5e3216\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M88 80h18l10 10v32H88z\" fill=\"#fff6ec\"/><path d=\"M106 80v10h10M94 102h16M94 112h12\"/></g></svg>",
+ "<svg viewBox=\"0 0 200 170\" role=\"img\" aria-label=\"Перша хмаринка\"><defs><linearGradient id=\"cl-f\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#e6efff\"/><stop offset=\"1\" stop-color=\"#9dbcf0\"/></linearGradient></defs><path d=\"M58 132A30 30 0 0 1 52 72A44 44 0 0 1 136 56A34 34 0 0 1 150 132Z\" fill=\"url(#cl-f)\" stroke=\"#1b3f87\" stroke-width=\"4\" stroke-linejoin=\"round\"/><g fill=\"none\" stroke=\"#1b3f87\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M100 122V88M86 102l14-14 14 14\"/></g></svg>"];
+function tier(p){return p===1?0:p>=.8?1:p>=.5?2:3;}
+function rank(p){return p===1?"Золота хмаринка":p>=.8?"Срібна хмаринка":p>=.5?"Бронзова хмаринка":"Перша хмаринка";}
+function cheer(p){return p===1?"Бездоганно! Усі відповіді правильні з першої спроби. Чудова робота, так тримати!":
+  p>=.8?"Чудова робота! Видно, що тема тобі зрозуміла. Переглянь кілька підказок у списку «Над чим попрацювати», і наступного разу буде ідеально.":
+  p>=.5?"Гарний результат! Більшість відповідей правильні. Переглянь підказки в списку «Над чим попрацювати» — і наступного разу вийде ще краще.":
+  "Не засмучуйся! Помилки — це нормальна частина навчання: саме на них ми вчимося найкраще. Переглянь підказки в списку «Над чим попрацювати» і спробуй ще раз — у тебе все вийде!";}
 function renderEnd(){
   var T=total(),p=S.score/T;
   var real=MISSIONS.map(function(m,i){var ok=S.gmDone[i]===true;return '<li><span class="st '+(ok?"y":"n")+'">'+(ok?"Виконано":"Не виконано")+'</span><span>'+esc(m.title)+(m.train?' <span class="note">(тренування)</span>':' <b>(оцінюється)</b>')+'</span></li>';}).join("");
   app.innerHTML=topbar()+'<section class="hero"><div class="air"></div><div class="hero-in">'+
-   '<div class="stack"><div class="label">Практичну роботу завершено</div><h2>'+esc(nm())+', твоє звання: '+rank(p)+'</h2>'+
-   '<p>З першої спроби правильно '+S.score+' відповідей із '+T+'.</p>'+
-   '<div class="result"><div class="post"><div><span>бали</span><b>'+S.score+'/'+T+'</b><span>'+esc(cls())+'</span></div></div></div>'+
+   '<div class="stack"><div class="label">Практичну роботу завершено</div><h2>'+esc(nm())+', твоя нагорода: '+rank(p)+'</h2>'+
+   '<p>'+cheer(p)+'</p>'+
+   '<p class="note">З першої спроби правильно '+S.score+' відповідей із '+T+'.</p>'+
+   '<div class="result"><div class="award">'+AWARDS[tier(p)]+'</div><div class="post"><div><span>влучно</span><b>'+pct(S.score,T)+'%</b><span>'+esc(cls())+'</span></div></div></div>'+
    '<div class="label">Завдання в Google</div><ul class="final">'+real+'</ul>'+
    '<p class="note">Покажи цей екран учителю. Вчитель перевірить твій документ і слайд у Google.</p>'+
    '<button class="primary" id="again">Пройти знову</button></div>'+

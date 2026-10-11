@@ -123,6 +123,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--focus);outline-
 .post{width:150px;height:150px;border-radius:50%;border:3px solid var(--red);color:var(--red);display:grid;place-items:center;text-align:center;transform:rotate(-8deg);font-family:var(--f-display);flex:none}
 .post b{font-size:34px;display:block;font-variant-numeric:tabular-nums}
 .post span{font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.award svg{display:block;width:160px;height:auto}
 .result{display:flex;flex-wrap:wrap;gap:24px;align-items:center}
 .miss{display:flex;flex-direction:column;gap:10px;margin:0;padding:0;list-style:none}
 .miss li{background:var(--surface-2);border-radius:8px;padding:10px 14px;font-size:14px}
@@ -254,7 +255,7 @@ function buildMissions(){
      "Скопіюй текст і встав його в лист.",
      "Натисни «Надіслати» і перевір, що лист з'явився в папці «Надіслані»."]}},
 
-  {type:"compose",title:"Лист однокласникам",brief:"Тепер пишеш сам! Розберись зі зразком, а потім надішли всьому класу через групу СВОЮ пораду з безпеки.",
+  {type:"compose",title:"Лист однокласникам",brief:"Тепер пишеш самостійно! Розберись зі зразком, а потім надішли всьому класу через групу СВОЮ пораду з безпеки.",
    hint:'Адреса групи класу: <span class="mono">'+esc(G)+'</span>',
    steps:[
     {field:"to",prompt:"Кому надіслати, щоб лист отримав увесь клас?",options:[
@@ -277,7 +278,7 @@ function buildMissions(){
      "Жодних особистих даних: телефону, домашньої адреси, паролів.",
      "Підпис з іменем."],tasks:[
      "Натисни «Написати».",
-     "У полі «Кому» сам надрукуй адресу групи (вона є в завданні ліворуч).",
+     "У полі «Кому» самостійно надрукуй адресу групи (вона є в завданні ліворуч).",
      "Надрукуй тему й напиши лист за вимогами вище.",
      "Перечитай і натисни «Надіслати».",
      "Відкрий «Вхідні»: там з'являться листи від однокласників."]}},
@@ -309,7 +310,7 @@ function buildMissions(){
    letter:{from:"Служба безпеки",addr:"security@gmail-support.help-desk.xyz",subject:"Ваш акаунт буде ЗАБЛОКОВАНО!",body:"Шановний користувачу!\nЧерез 24 години вашу скриньку буде видалено.\nЩоб зберегти її, перейдіть за посиланням і введіть логін та пароль:\nhttp://gmail-login.xyz"},
    steps:[
     {field:"q",prompt:"Що підозріле в цьому листі?",options:[
-      {t:"Дивна адреса відправника, залякування і прохання ввести пароль",ok:true,why:"Це ознаки фішингу: шахраї намагаються «виудити» пароль через підробний сайт."},
+      {t:"Дивна адреса відправника, залякування і прохання ввести пароль",ok:true,why:"Так виглядає фішинг: шахраї створюють фальшивий сайт, щоб заволодіти твоїм паролем."},
       {t:"Нічого, це лист від служби безпеки",why:"Справжня пошта ніколи не просить ввести пароль за посиланням з листа."},
       {t:"Лише великі літери в темі",why:"Капс — лише одна ознака. Головне: чужий домен і прохання ввести пароль."}]},
     {field:"action",prompt:"Що зробиш?",options:[
@@ -321,16 +322,17 @@ function buildMissions(){
      "Тема точно за зразком: «Підсумок уроку — твоє прізвище, ім'я, клас».",
      "Привітання і звертання: «"+TG+"».",
      "Своїми словами: дві ознаки фішингового листа і що робити з таким листом.",
-     "1–2 речення: що нового ти дізнався(-лася) на уроці.",
+     "1–2 речення: що нового для тебе було на уроці.",
      "Ввічливе завершення і підпис: прізвище, ім'я, клас.",
      "Без тексту ВЕЛИКИМИ ЛІТЕРАМИ. Перечитай і виправ помилки."],tasks:[
      "Натисни «Написати» і вибери вчителя з контактів.",
-     "Сам надрукуй тему за зразком.",
-     "Сам напиши лист за вимогами вище.",
+     "Самостійно надрукуй тему за зразком.",
+     "Самостійно напиши лист за вимогами вище.",
      "Перечитай, натисни «Надіслати» і перевір папку «Надіслані»."]}}
   ];
 }
 var MISSIONS=buildMissions();
+function pct(n,d){return Math.round(100*n/d);}
 function total(){return MISSIONS.reduce(function(s,m){return s+m.steps.length;},0);}
 
 var $=function(s){return document.querySelector(s);};
@@ -350,14 +352,14 @@ function topbar(){
   var pips=MISSIONS.map(function(m,i){var c=i<S.mi?"done":(i===S.mi&&S.screen==="play"?"now":"");return '<div class="pip '+c+'" title="'+esc(m.title)+'">'+(i<S.mi?CHK:(i+1))+'</div>';}).join("");
   return '<div class="bar"><div class="brand"><span class="at" aria-hidden="true">@</span><h1>Поштова місія</h1><a class="home" href="../index.html">На головну</a></div>'+
     (S.screen==="play"?'<div class="track" aria-label="Прогрес місій">'+pips+'</div>':'')+
-    '<div class="barright">'+(S.screen==="play"?'<div class="score">Бали: '+S.score+' / '+total()+'</div>':'')+themeBtn()+'</div></div>';
+    '<div class="barright">'+(S.screen==="play"?'<div class="score" title="Частка відповідей, правильних з першої спроби">Влучно: '+(S.score+S.misses.length?pct(S.score,S.score+S.misses.length)+'%':'—')+'</div>':'')+themeBtn()+'</div></div>';
 }
 
 /* ---------- start ---------- */
 function renderStart(){
   app.innerHTML=topbar()+'<section class="hero"><div class="air"></div><div class="hero-in">'+
    '<div class="stack"><div class="label">Практична робота</div><h2>Поштова місія в Gmail</h2>'+
-   '<p>У кожній місії спочатку розберись із завданням тут, а потім виконай його у своїй справжній пошті Gmail. Перші дві місії — <b>тренування</b>: лист можна скопіювати. В останніх трьох ти <b>пишеш сам</b>, своїми словами — саме ці листи оцінює вчитель.</p>'+
+   '<p>У кожній місії спочатку розберись із завданням тут, а потім виконай його у своїй справжній пошті Gmail. Перші дві місії — <b>тренування</b>: лист можна скопіювати. В останніх трьох ти <b>пишеш самостійно</b>, своїми словами — саме ці листи оцінює вчитель.</p>'+
    '<form class="form" id="f"><label class="label" for="nm">Прізвище та ім\'я</label><input id="nm" maxlength="40" placeholder="Наприклад, Софія Бондар" value="'+esc(S.name)+'">'+
    '<label class="label" for="cl">Клас</label><input id="cl" maxlength="10" value="'+esc(S.cls)+'">'+
    '<button class="primary" type="submit">Почати місію</button></form>'+
@@ -369,7 +371,7 @@ function renderStart(){
     '<label class="label" for="dc">Клас за замовчуванням</label><input id="dc" value="'+esc(CFG.className)+'">'+
     '<button class="primary" type="submit">Створити посилання для учнів</button><span class="note" id="cfn"></span>'+
     '<div id="lk" hidden><label class="label" for="lko">Посилання для учнів</label><input id="lko" class="linkout" readonly><button class="copy" type="button" id="lkc">Скопіювати посилання</button></div></form></details>')+'</div>'+
-   '<div class="stack"><div class="label">Місії</div><ol class="mlist">'+MISSIONS.map(function(m,i){return '<li><span class="n">0'+(i+1)+'</span><span>'+esc(m.title)+(m.train?' <span class="note">· тренування</span>':' <span class="note">· пишеш сам</span>')+'</span></li>';}).join("")+'</ol>'+
+   '<div class="stack"><div class="label">Місії</div><ol class="mlist">'+MISSIONS.map(function(m,i){return '<li><span class="n">0'+(i+1)+'</span><span>'+esc(m.title)+(m.train?' <span class="note">· тренування</span>':' <span class="note">· самостійно</span>')+'</span></li>';}).join("")+'</ol>'+
    '<div class="hint">Вчитель: <b>'+esc(CFG.teacherName)+'</b>, <span class="mono">'+esc(CFG.teacherEmail)+'</span><br>Група класу: <span class="mono">'+esc(CFG.groupEmail)+'</span></div></div>'+
   '</div></section>';
   $("#f").addEventListener("submit",function(e){e.preventDefault();S.name=$("#nm").value;S.cls=$("#cl").value;S.screen="play";MISSIONS=buildMissions();render();});
@@ -419,7 +421,7 @@ function renderPlay(){
   if(S.stage==="gmail"){panel=gmailPanel(m);}
   else if(stepsDone()){
     var btn=m.gmail?"Тепер у Gmail":(S.mi===MISSIONS.length-1?"Завершити":"Наступна місія");
-    panel='<div class="panel">'+(S.fb?fbHtml():"")+'<div class="q">Готово! Ти склав усе правильно.</div><button class="primary" id="next">'+btn+'</button></div>';
+    panel='<div class="panel">'+(S.fb?fbHtml():"")+'<div class="q">Готово! Усе складено правильно.</div><button class="primary" id="next">'+btn+'</button></div>';
   } else {
     var st=m.steps[S.si],ord=shuffled(st.options.length,S.mi+"."+S.si);
     panel='<div class="panel"><div class="label">Крок '+(S.si+1)+' з '+m.steps.length+'</div><div class="q">'+esc(st.prompt)+'</div>'+
@@ -427,7 +429,7 @@ function renderPlay(){
   }
   var kind={compose:"Новий лист",inbox:"Вхідний лист",contact:"Адресна книга"}[m.type];
   app.innerHTML=topbar()+'<div class="grid"><aside class="brief"><div class="stamp">місія<b>'+(S.mi+1)+'</b>з '+MISSIONS.length+'</div>'+
-    '<div class="label kind">'+kind+(m.train?' · тренування':' · пишеш сам')+'</div><h2 class="kind">'+esc(m.title)+'</h2><p>'+esc(m.brief)+'</p>'+(m.hint?'<div class="hint">'+m.hint+'</div>':'')+
+    '<div class="label kind">'+kind+(m.train?' · тренування':' · самостійно')+'</div><h2 class="kind">'+esc(m.title)+'</h2><p>'+esc(m.brief)+'</p>'+(m.hint?'<div class="hint">'+m.hint+'</div>':'')+
     '<div class="note">Кольори в адресі: <span class="mono addr"><span class="lg">логін</span><span class="sym">@</span><span class="dm">сервіс</span></span></div></aside>'+
     '<div class="stack">'+win+panel+'</div></div>';
   var opts=$("#opts");if(opts)opts.addEventListener("click",function(e){var b=e.target.closest(".opt");if(b&&!b.disabled)choose(+b.getAttribute("data-i"));});
@@ -457,7 +459,7 @@ function gmailPanel(m){
   var g=m.gmail,copies=gmCopies(m);
   var all=S.gm.length===g.tasks.length&&S.gm.every(function(x){return x;});
   return '<div class="gm"><h3><span class="gm-badge">Gmail</span>'+esc(g.title)+'</h3>'+
-   '<p class="note" style="margin:0">'+(g.own?'Цей лист ти пишеш <b>сам</b>, своїми словами. Саме його оцінює вчитель.':'Тренування: можна копіювати. Виконуй кроки у своїй пошті й став позначки.')+'</p>'+
+   '<p class="note" style="margin:0">'+(g.own?'Цей лист ти пишеш <b>самостійно</b>, своїми словами. Саме його оцінює вчитель.':'Тренування: можна копіювати. Виконуй кроки у своїй пошті й став позначки.')+'</p>'+
    (copies.length?'<div class="copies" id="cps">'+copies.map(function(c,i){return '<button class="copy" data-c="'+i+'">'+esc(c[0])+'</button>';}).join("")+'</div>':'')+
    (g.own?'<div class="hint"><b style="color:var(--ink)">Вимоги до твого листа</b><ul style="margin:6px 0 0;padding-left:20px">'+g.own.map(function(r){return '<li>'+esc(r)+'</li>';}).join("")+'</ul></div>':'')+
    '<ul class="tasks" id="tasks">'+g.tasks.map(function(t,i){var on=!!S.gm[i];return '<li><label class="task '+(on?"done":"")+'"><input type="checkbox" data-t="'+i+'" '+(on?"checked":"")+'><span>'+(i+1)+'. '+esc(t)+'</span></label></li>';}).join("")+'</ul>'+
@@ -491,14 +493,25 @@ function nextMission(){
 }
 
 /* ---------- end ---------- */
-function rank(p){return p===1?"Майстер e-mail":p>=.8?"Досвідчений поштар":p>=.5?"Впевнений користувач":"Поштар-стажер";}
+var AWARDS=[
+ "<svg viewBox=\"0 0 160 200\" role=\"img\" aria-label=\"Золота марка\"><defs><mask id=\"pf-g\"><rect width=\"160\" height=\"200\" fill=\"#fff\"/><rect width=\"160\" height=\"200\" fill=\"none\" stroke=\"#000\" stroke-width=\"12\" stroke-dasharray=\"0 20\" stroke-linecap=\"round\"/></mask><linearGradient id=\"mt-g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"#fff1b8\"/><stop offset=\"1\" stop-color=\"#e3b23c\"/></linearGradient></defs><rect width=\"160\" height=\"200\" fill=\"url(#mt-g)\" mask=\"url(#pf-g)\"/><rect x=\"18\" y=\"18\" width=\"124\" height=\"164\" fill=\"#fffdf7\" stroke=\"#6b4a00\" stroke-width=\"2\"/><g fill=\"none\" stroke=\"#6b4a00\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"34\" y=\"68\" width=\"92\" height=\"64\" rx=\"6\" fill=\"#ffffff\"/><path d=\"M36 72l44 34 44-34\"/><path d=\"M37 129l32-25M123 129l-32-25\" stroke-width=\"3\"/></g></svg>",
+ "<svg viewBox=\"0 0 160 200\" role=\"img\" aria-label=\"Срібна марка\"><defs><mask id=\"pf-s\"><rect width=\"160\" height=\"200\" fill=\"#fff\"/><rect width=\"160\" height=\"200\" fill=\"none\" stroke=\"#000\" stroke-width=\"12\" stroke-dasharray=\"0 20\" stroke-linecap=\"round\"/></mask><linearGradient id=\"mt-s\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"#f5f7fa\"/><stop offset=\"1\" stop-color=\"#b3bdc9\"/></linearGradient></defs><rect width=\"160\" height=\"200\" fill=\"url(#mt-s)\" mask=\"url(#pf-s)\"/><rect x=\"18\" y=\"18\" width=\"124\" height=\"164\" fill=\"#fffdf7\" stroke=\"#3a4656\" stroke-width=\"2\"/><g fill=\"none\" stroke=\"#3a4656\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"34\" y=\"68\" width=\"92\" height=\"64\" rx=\"6\" fill=\"#ffffff\"/><path d=\"M36 72l44 34 44-34\"/><path d=\"M37 129l32-25M123 129l-32-25\" stroke-width=\"3\"/></g></svg>",
+ "<svg viewBox=\"0 0 160 200\" role=\"img\" aria-label=\"Бронзова марка\"><defs><mask id=\"pf-b\"><rect width=\"160\" height=\"200\" fill=\"#fff\"/><rect width=\"160\" height=\"200\" fill=\"none\" stroke=\"#000\" stroke-width=\"12\" stroke-dasharray=\"0 20\" stroke-linecap=\"round\"/></mask><linearGradient id=\"mt-b\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"#f8d9bd\"/><stop offset=\"1\" stop-color=\"#c98350\"/></linearGradient></defs><rect width=\"160\" height=\"200\" fill=\"url(#mt-b)\" mask=\"url(#pf-b)\"/><rect x=\"18\" y=\"18\" width=\"124\" height=\"164\" fill=\"#fffdf7\" stroke=\"#5e3216\" stroke-width=\"2\"/><g fill=\"none\" stroke=\"#5e3216\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"34\" y=\"68\" width=\"92\" height=\"64\" rx=\"6\" fill=\"#ffffff\"/><path d=\"M36 72l44 34 44-34\"/><path d=\"M37 129l32-25M123 129l-32-25\" stroke-width=\"3\"/></g></svg>",
+ "<svg viewBox=\"0 0 160 200\" role=\"img\" aria-label=\"Перша марка\"><defs><mask id=\"pf-f\"><rect width=\"160\" height=\"200\" fill=\"#fff\"/><rect width=\"160\" height=\"200\" fill=\"none\" stroke=\"#000\" stroke-width=\"12\" stroke-dasharray=\"0 20\" stroke-linecap=\"round\"/></mask><linearGradient id=\"mt-f\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"#e6efff\"/><stop offset=\"1\" stop-color=\"#9dbcf0\"/></linearGradient></defs><rect width=\"160\" height=\"200\" fill=\"url(#mt-f)\" mask=\"url(#pf-f)\"/><rect x=\"18\" y=\"18\" width=\"124\" height=\"164\" fill=\"#fffdf7\" stroke=\"#1b3f87\" stroke-width=\"2\"/><g fill=\"none\" stroke=\"#1b3f87\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"34\" y=\"68\" width=\"92\" height=\"64\" rx=\"6\" fill=\"#ffffff\"/><path d=\"M36 72l44 34 44-34\"/><path d=\"M37 129l32-25M123 129l-32-25\" stroke-width=\"3\"/></g></svg>"];
+function tier(p){return p===1?0:p>=.8?1:p>=.5?2:3;}
+function rank(p){return p===1?"Золота марка":p>=.8?"Срібна марка":p>=.5?"Бронзова марка":"Перша марка";}
+function cheer(p){return p===1?"Бездоганно! Усі відповіді правильні з першої спроби. Чудова робота, так тримати!":
+  p>=.8?"Чудова робота! Видно, що тема тобі зрозуміла. Переглянь кілька підказок у списку «Над чим попрацювати», і наступного разу буде ідеально.":
+  p>=.5?"Гарний результат! Більшість відповідей правильні. Переглянь підказки в списку «Над чим попрацювати» — і наступного разу вийде ще краще.":
+  "Не засмучуйся! Помилки — це нормальна частина навчання: саме на них ми вчимося найкраще. Переглянь підказки в списку «Над чим попрацювати» і спробуй ще раз — у тебе все вийде!";}
 function renderEnd(){
   var T=total(),p=S.score/T;
   var real=MISSIONS.map(function(m,i){if(!m.gmail)return "";var ok=S.gmDone[i]===true;return '<li><span class="st '+(ok?"y":"n")+'">'+(ok?"Виконано":"Не виконано")+'</span><span>'+esc(m.title)+(m.train?' <span class="note">(тренування)</span>':' <b>(оцінюється)</b>')+'</span></li>';}).join("");
   app.innerHTML=topbar()+'<section class="hero"><div class="air"></div><div class="hero-in">'+
-   '<div class="stack"><div class="label">Практичну роботу завершено</div><h2>'+esc(nm())+', твоє звання: '+rank(p)+'</h2>'+
-   '<p>З першої спроби правильно '+S.score+' відповідей із '+T+'.</p>'+
-   '<div class="result"><div class="post"><div><span>бали</span><b>'+S.score+'/'+T+'</b><span>'+esc(cls())+'</span></div></div></div>'+
+   '<div class="stack"><div class="label">Практичну роботу завершено</div><h2>'+esc(nm())+', твоя нагорода: '+rank(p)+'</h2>'+
+   '<p>'+cheer(p)+'</p>'+
+   '<p class="note">З першої спроби правильно '+S.score+' відповідей із '+T+'.</p>'+
+   '<div class="result"><div class="award">'+AWARDS[tier(p)]+'</div><div class="post"><div><span>влучно</span><b>'+pct(S.score,T)+'%</b><span>'+esc(cls())+'</span></div></div></div>'+
    '<div class="label">Завдання в Gmail</div><ul class="final">'+real+'</ul>'+
    '<p class="note">Покажи цей екран учителю. Вчитель перевірить твої листи у своїй пошті.</p>'+
    '<button class="primary" id="again">Пройти знову</button></div>'+
